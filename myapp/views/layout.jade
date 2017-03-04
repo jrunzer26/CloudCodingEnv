@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='stylesheets/bootstrap.css')
+    link(rel="stylesheet" type="text/css" href="plugin/codemirror/codemirror-5.23.0/lib/codemirror.css")
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/font-awesome.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap-social.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
+    script(src="/javascripts/jquery.cookie.js")
+    script(src="javascripts/default.js")
+    block extraScripts
+    
+  body
+    .rowContainer.header
+      #menu(onclick="openNav()")
+        i.fa.fa-bars.fa-lg
+      #logo
+        img(src="images/uoit.jpg")
+      #titleDiv
+        h1 #{title}
+        block headerContent
+      #mySidenav.sidenav
+        #sideNavHeader
+          .centered
+            #menuIconOpen
+              i.fa.fa-bars.fa-lg(onclick="closeNav()")
+        a(href="#") Programs
+        a(href="#") Quiz
+        a(href="#") Instructor Programs
+    block content
+    footer(class="footer")
+      h4 UOIT

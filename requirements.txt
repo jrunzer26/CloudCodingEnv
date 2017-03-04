@@ -1,0 +1,41 @@
+Requirements
+	- google auth login page (if time permits, uoit accounts only)
+	- google drive storage
+	- styling
+	- complile code & compiled code storage structure
+
+	- Basic Quizzes
+	- 2 user groups
+
+
+Test Cases
+	- Hello World multiple concurrent users
+
+
+Database Structure
+User
+	pk (email)
+	client id ?
+	first
+	last name
+	role : teacher / student
+	
+
+Quizzes
+	pk(id) serial
+	expireryDate time
+	creator fk(User email)
+
+Answers
+	pk(id) serial
+	correctAnswer boolean
+	fk(quizzes id)
+
+QuizResults
+	pk(id) serial	
+	date completed
+	fk(email)
+	mark double
+
+Quiz
+	

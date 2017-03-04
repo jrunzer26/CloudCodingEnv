@@ -1,0 +1,38 @@
+extends nav
+
+block extraScripts
+  script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/lib/codemirror.js")
+  script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/mode/clike/clike.js")
+  script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/mode/javascript/javascript.js")
+
+block content
+  #backgroundContainer
+    #utilityBar
+      button.tableCol.btn-sm(type="submit" class="btn" id="save" onclick="navSignOut()") Save
+      #programsList.tableCol
+        .program.tableCol(id="aProgram" onclick="switchProgram(\"aProgram\")")
+          p.tableCol aProgram.cpp
+          i.fa.fa-times.tabelCol(onclick="closeProgram(\"aProgram\")")
+        .program.tableCol(id="a2ndProgram" onclick="switchProgram(\"a2ndProgram\")")
+          p.tableCol a2ndProgram.cpp
+          i.fa.fa-times.tabelCol(onclick="closeProgram(\"a2ndProgram\")")
+    #content
+      #codingSection.half
+        textarea(class="codemirror-textarea") #include <iostream>
+          | int main() {
+          |   std::cout << "Hello World!\n";
+          | }
+      .half#inputContainers
+        #inputSection.split
+          p Compile Time Arguments
+          textarea(rows="1" cols="50" id="inputParams")
+          p Input
+          textarea(rows= "5" cols="30" id="cinParams")
+          br
+          button.btn.floatRight(id="showText") Run
+        #outputSection.split
+          p Computer Output
+          textarea(rows="4" cols="50" id="outputOfCode")
+      
+      
+    
