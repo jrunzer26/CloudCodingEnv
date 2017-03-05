@@ -28,6 +28,7 @@ router.get('/code', function(req,res,next) {
 	compile.on('close', function (data) {
 		if(data ===0) {
 			var run = spawn("./a.out", array);
+			run.stdin.end(cin);
 			run.stdout.on('data', function (output) {
 				outputText += String(output) + "\n";
 				console.log(String(output));
