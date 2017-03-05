@@ -28,7 +28,7 @@ router.get('/code', function(req,res,next) {
 	compile.on('close', function (data) {
 		if(data ===0) {
 			var run = spawn("./a.out", array);
-			run.stdin.end('5');
+			run.stdin.end(cin);
 			run.stdout.on('data', function (output) {
 				outputText += String(output) + "\n";
 				console.log(String(output));
@@ -38,11 +38,10 @@ router.get('/code', function(req,res,next) {
 			});
 			run.on('close', function(output) {
 				console.log('stdout: '+ output);
+				res.send(outputText);
 			});
 		}
 	})
-	console.log(outputText);
-	res.send(outputText);
 });
 
 module.exports = router;
