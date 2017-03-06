@@ -207,3 +207,29 @@ a {
 #inputParams, #cinParams {
   width: 100%;
 }
+
+
+#logoContainer {
+  width: 40%;
+  max-width: 400px;
+  margin: auto;
+}
+
+#img-logo {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+#signInContainer {
+  width: 400px;
+  margin: auto;
+  background: blue;
+}
+
+.g-signin2{
+  width: 100%;
+}
+
+.g-signin2 > div{
+  margin: 0 auto;
+}
