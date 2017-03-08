@@ -32,6 +32,31 @@ exports.getQuizInfo = function(quizId, callback) {
 /**
  * Gets all questions and possible answers for a quiz in the database.
  */
-exports.getCompleteQuiz = function(quizId, callback) {
-
+exports.getQuizQuestions = function(quizId, callback) {
+  db.any('SELECT * FROM Questions WHERE "quizID" = $1',[quizId])
+    .then(function(questionList) {
+      var quiz = {quizid: quizId, questions: []};
+      var count = 0;
+      Promise.all(questionList.map(function(question) {
+        return db.any('SELECT "id", "value" FROM Answers WHERE "questionID" = $1;', 
+                      [question.id])
+        .then(function(questionOptions) {
+          var aQuestion = {id: question.id, question: question.question, answers: questionOptions};
+          quiz.questions.push(aQuestion);
+        })
+        .catch(function(err) {
+          console.log(err);
+          callback(null);
+        });
+      }))
+      .then(function() {
+        console.log('callback');
+        callback(quiz);
+      });
+    }
+    )
+    .catch(function(err) {
+      console.log(err);
+      callback(null);
+    })
 }
