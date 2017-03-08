@@ -3,12 +3,30 @@ extends nav
 block extraScripts
   script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/lib/codemirror.js")
   script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/mode/clike/clike.js")
+  script(language="JavaScript" type="text/javascript" src="javascripts/googleStuff.js")
+  script(async='', defer='', src='https://apis.google.com/js/api.js', onload='this.onload=function(){};handleClientLoad()', onreadystatechange="if (this.readyState === 'complete') this.onload()")
   script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/mode/javascript/javascript.js")
+
+
+
 
 block content
   #backgroundContainer
     #utilityBar
       button.tableCol.btn-sm(type="submit" class="btn" id="save" onclick="navSignOut()") Save
+      button#sign-in-or-out-button(style='margin-left: 25px') Sign In/Authorize
+      button#revoke-access-button(style='display: none; margin-left: 25px') Revoke access
+      button.tableCol.btn-sm(type="submit" class="btn" id="test" onclick="test()") Test
+      button.tableCol.btn-sm(type="submit" class="btn" id="folder" onclick="folderCreate()") Folder
+      #auth-status(style='display: inline; padding-left: 25px')
+      hr
+
+      #gSignInWrapper
+        span.label Sign in with:
+        #customBtn.customGPlusSignIn
+          span.icon
+          span.buttonText Google
+      #name
       #programsList.tableCol
         .program.tableCol(id="aProgram" onclick="switchProgram(\"aProgram\")")
           p.tableCol aProgram.cpp
@@ -33,6 +51,7 @@ block content
         #outputSection.split
           p Computer Output
           textarea(rows="4" cols="50" id="outputOfCode")
+
       
       
     

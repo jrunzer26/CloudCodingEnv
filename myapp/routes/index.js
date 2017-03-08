@@ -2,6 +2,15 @@ var express = require('express');
 var fs = require('fs');
 var readline = require('readline');
 var spawn = require('child_process').spawn;
+var readline = require('readline');
+var google = require('googleapis');
+var GoogleAuth = require('google-auth-library');
+
+var auth = new GoogleAuth;
+
+var GoogleAuth = require('google-auth-library');
+var client = new auth.OAuth2("814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com", '', '');
+
 var router = express.Router();
 
 /* GET home page. */
@@ -43,6 +52,24 @@ router.get('/code', function(req,res,next) {
 		}
 	})
 });
+
+router.get('/file', function(req,res,next) {
+	
+})
+
+router.get('/auth', function(req,res,next) {
+	client.verifyIdToken(
+    req.query.token,
+    "814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com",
+    // Or, if multiple clients access the backend:
+    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3],
+    function(e, login) {
+      var payload = login.getPayload();
+      var userid = payload['sub'];
+      // If request specified a G Suite domain:
+      //var domain = payload['hd'];
+    });
+})
 
 module.exports = router;
 	
