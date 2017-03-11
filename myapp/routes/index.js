@@ -5,6 +5,7 @@ var spawn = require('child_process').spawn;
 var readline = require('readline');
 var google = require('googleapis');
 var GoogleAuth = require('google-auth-library');
+var rp = require('request-promise');
 
 var auth = new GoogleAuth;
 
@@ -53,8 +54,19 @@ router.get('/code', function(req,res,next) {
 	})
 });
 
-router.get('/file', function(req,res,next) {
-	
+router.get('/getFile', function(req,res,next) {
+	var token = req.query.token;
+	var url = req.query.url;
+	var options = {
+		uri: url,
+
+		headers: {
+			'Authorization': 'Bearer '+ token
+		}
+	};
+	rp(options).then(function (result) {
+		res.send(result);
+	})
 })
 
 router.get('/auth', function(req,res,next) {

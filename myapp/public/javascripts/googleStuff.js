@@ -1,11 +1,27 @@
 var GoogleAuth;
+var ENGRFolderId;
 var existingFolders = [];
-  var SCOPE = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.apps.readonly https://www.googleapis.com/auth/drive.file';
+var editor;
+  var SCOPE = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.photos.readonly https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.apps.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata https://www.googleapis.com/auth/drive.readonly';
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
     // Call the initClient function after the modules load.
     gapi.load('client:auth2', initClient);
   }
+
+
+  $(document).ready(function() {
+    var code = $(".codemirror-textarea")[0];
+    editor = CodeMirror.fromTextArea(code, {
+      lineNumbers : true,
+      value: "function myScript(){return 100;}\n",
+      mode: "text/x-c++src",
+      theme: "default"
+    });
+
+
+  });
+
 
   function initClient() {
     // Retrieve the discovery document for version 3 of Google Drive API.
@@ -64,28 +80,7 @@ var existingFolders = [];
       $('#revoke-access-button').css('display', 'inline-block');
       $('#auth-status').html('You are currently signed in and have granted ' +
           'access to this app.');
-      console.log("YOu are currently signed in well done");
-      /*test(function(listOfIds) {
-       // console.log(listOfIds);
-       // console.log(listOfIds.length);
-        for(var i = 0; i<10; i++) {
-          console.log(listOfIds[i]);
-            var request1 = gapi.client.request({
-                'path': '/drive/v2/files/0BzCEu_ybGHUNR05TZDdyeVpBSFE',
-                'method': 'GET'
-              });
-            request1.execute(function(res) {
-              console.log(res.title);
-              /*if(res.title == "ENGR 1200") {
-                alert("that folder already exists");
-              } else if (res.title != undefined){
-                existingFolders.push(res.title);
-              } else {
-                console.log(resp.items[i]);
-              }
-            });
-        }
-      });*/
+      checkForFolder();
     } else {
       $('#sign-in-or-out-button').html('Sign In/Authorize');
       $('#revoke-access-button').css('display', 'none');
@@ -98,19 +93,72 @@ var existingFolders = [];
     setSigninStatus();
   }
 
+  function saveFile() {
+      const boundary = '-------314159265358979323846';
+      const delimiter = "\r\n--" + boundary + "\r\n";
+      const close_delim = "\r\n--" + boundary + "--";
+      console.log(ENGRFolderId);
+      var fileMetadata = {
+      'title' : 'heynow.c',
+      'mimeType' : 'text/plain',
+      'parents': [{"id": ENGRFolderId}]
+      };
+
+      var base64Data = btoa(editor.getValue());
+      var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(fileMetadata) +
+        delimiter +
+        'Content-Type: ' + "text/plain" + '\r\n' +
+        'Content-Transfer-Encoding: base64\r\n' +
+        '\r\n' +
+        base64Data +
+        close_delim;
+
+        var request = gapi.client.request({
+            'path': '/upload/drive/v2/files',
+            'method': 'POST',
+            'params' : {'uploadType': 'multipart'},
+            'headers': {
+              'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+            },
+            'body': multipartRequestBody
+        });
+        request.execute();
+
+  }
+
+  function readFiles(id) {
+    console.log(ENGRFolderId);
+    console.log(id);
+    console.log("reading files");
+    var request = gapi.client.request({
+        'path': '/drive/v2/files',
+        'method': 'GET',
+        'params': {q:  "'"+id+"' in parents"}
+    });
+      request.execute(function(resp) {
+        console.log(resp);
+        for(var i = 0; i < resp.items.length; i++) {
+          console.log(resp.items[i].title);
+          if(i == 0) {
+            $.ajax({
+              type: 'GET',
+              url: '/getFile',
+              data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.items[i].downloadUrl},
+              success: function(output) {
+                editor.setValue(output);
+              }
+            });
+          }
+        }
+      })
+  }
+
 
   function folderCreate() {
     console.log("creating folder");
-    const boundary = '-------314159265358979323846';
-    const delimiter = "\r\n--" + boundary + "\r\n";
-    const close_delim = "\r\n--" + boundary + "--";
-
-    var fileMetadata = {
-    'title' : 'ENGR 1200',
-    'mimeType' : 'application/vnd.google-apps.folder'
-    };
-
-
 
     var request = gapi.client.request({
         'path' : '/drive/v2/files',
@@ -118,14 +166,16 @@ var existingFolders = [];
         'body' : {'title' : 'ENGR 1200', 'mimeType' : 'application/vnd.google-apps.folder'}
         
     });
-      request.execute();
+      request.execute(function(resp) {
+        ENGRFolderId = resp.id;
+      });
   }
 
 
 
 
 
-  function test() {
+  function checkForFolder() {
     var fileExist = false;
     var request = gapi.client.request({
             'path': '/drive/v3/files',
@@ -137,6 +187,7 @@ var existingFolders = [];
               for(var i =0; i < resp.files.length; i++) {
                   if(resp.files[i].mimeType == "application/vnd.google-apps.folder") {
                     fileExist = true;
+                    ENGRFolderId = resp.files[0].id;
                     break;
                   }
               }
@@ -146,27 +197,7 @@ var existingFolders = [];
               folderCreate();
             } else {
               console.log("That folder already exists");
+              readFiles(ENGRFolderId);
             }
-       /* for (i=0; i<resp.items.length; i++) {
-            for(var j =0; j<resp.items[i].parents.length; j++) {  
-              ids.push(resp.items[i].parents[j].id);
-             /* var request1 = gapi.client.request({
-                'path': '/drive/v2/files/'+resp.items[i].parents[j].id,
-                'method': 'GET'
-              });
-            request1.execute(function(res) {
-              //console.log(res.title);
-              if(res.title == "ENGR 1200") {
-                alert("that folder already exists");
-              } else if (res.title != undefined){
-                existingFolders.push(res.title);
-              } else {
-                console.log(resp.items[i]);
-              }
-            });
-          }
-
-        }*/
-        //  callback(ids);
     });
   }
