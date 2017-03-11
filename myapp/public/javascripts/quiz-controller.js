@@ -1,7 +1,10 @@
+var GLOBAL_QUIZ;
+var GLOBAL_QUIZ_ID;
+
 $(document).ready(function() {
-  
   if (window.location.href.includes("?quizid")) {
     var quizID = window.location.href.substring(window.location.href.indexOf('=') + 1);
+    GLOBAL_QUIZ_ID = quizID;
     loadQuizQuestions(quizID);
   } else {
     getQuizPostings();
@@ -54,6 +57,7 @@ function loadQuizQuestions(quizID) {
     data: {quizid: quizID},
     url: '/quiz/getQuizQuestions',
     success: function(output) {
+      GLOBAL_QUIZ = output;
       loadAllQuizQuestion(output);
     }
   });
@@ -81,9 +85,11 @@ function loadQuestion(question) {
   console.log(question);
   $('#questions').append(
     '<div>'+
-      '<div>' + question.question+'</div><br>'+
-      appendAnswers(question) +
-    '</div><br><br>'
+      '<h4>' + question.question+'</h4>'+
+      '<form>' +
+        appendAnswers(question) +
+      '</form>' +
+    '</div><br>'
   );
 }
 
@@ -95,7 +101,97 @@ function appendAnswers(question) {
   var string = '';
   for (var i = 0; i < question.answers.length; i++) {
     console.log(question.answers[i].id);
-    string += '<div>'+question.answers[i].value+'</div><br>';
+    string += '<div class="radio">'+
+      '<label><input type="radio" name="'+question.id+'" value="'+question.answers[i].id+'">'+''+question.answers[i].value+'</label>'+
+      '</div>';
   }
   return string;
 }
+
+/**
+ * Submits the quiz to the server.
+ */
+function submitQuiz() {
+  var collectedAnswers = [];
+  var quizFinished = true;
+  for(var i = 0; i < GLOBAL_QUIZ.questions.length; i++) {
+    var questionId = GLOBAL_QUIZ.questions[i].id;
+    var answerId = $("input:radio[name='"+questionId+"']:checked").val();
+    console.log(questionId + " " + answerId);
+    if (!answerId) {
+      quizFinished = false;
+    }
+    collectedAnswers.push({questionId: questionId, answerId: answerId});
+  }
+  console.log("finished");
+  if (quizFinished) {
+    postQuizAnswers(collectedAnswers);
+  } else {
+    alert("Please finish the quiz. Question: " + questionId + " is empty.")
+  }
+}
+
+/**
+ * Posts the quiz answers when the quiz is finished.
+ * @param {*} collectedAnswers 
+ */
+function postQuizAnswers(collectedAnswers) {
+  console.log("posting quiz answers")
+  console.log(collectedAnswers.length);
+  console.log(GLOBAL_QUIZ_ID);
+  // append id/google auth
+  var data = {
+    userID: "jason.runzer@uoit.net",
+    quizId: GLOBAL_QUIZ_ID,
+    answers: collectedAnswers
+  };
+  console.log(data);
+  $.ajax({
+    type: 'POST',
+    data: JSON.stringify(data),
+    contentType: 'application/json',
+    url: '/quiz/submitAnswers',
+    success: function(output) {
+      loadResults(output);
+    }
+  });
+}
+
+
+function loadResults(data) {
+  console.log("successfully finished quiz.");
+  console.log(data);
+  $('#mark').text('Mark: ' + data.results.mark * 100 + '%');
+  $("input[type=radio]").attr('disabled', true);
+  showWrongAnswers(data);
+  toggleRetryButton();
+  $('#quizModal').modal('toggle');
+}
+
+function showWrongAnswers(data) {
+  var resultsArray = data.results.results;
+  for(var i = 0; i< resultsArray.length; i++) {
+    var optionText = $("input:radio[name='"+resultsArray[i].givenAnswer.questionId+"'][value='"+resultsArray[i].givenAnswer.answerId+"']").parent().html();
+    var icon = "";
+    if (resultsArray[i].correct == "true") {
+      icon = ' <i class="fa fa-check" aria-hidden="true"></i>';
+    } else 
+      icon = ' <i class="fa fa-times" aria-hidden="true"></i>';
+    $("input:radio[name='"+resultsArray[i].givenAnswer.questionId+"'][value='"+resultsArray[i].givenAnswer.answerId+"']").parent().html(optionText + icon);
+  }
+}
+
+function toggleRetryButton() {
+  $('#submitQuiz').attr("onclick", "retry()");
+  $('#submitQuiz').text("Retry Quiz");
+  $('#submitQuiz').attr("id", "retryButton");
+}
+
+function retry() {
+  location.reload();
+}
+
+function navQuiz() {
+  window.location = "/quiz";
+}
+

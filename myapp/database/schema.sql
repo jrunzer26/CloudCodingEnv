@@ -33,6 +33,7 @@ CREATE TABLE Answers (
 
 CREATE TABLE QuizResults (
     "id" serial PRIMARY KEY,
+    "quizID" integer references Quizzes("id"),
     "dateCompleted" timestamp default current_timestamp,
     "email" text references Users("email"),
     "mark" decimal

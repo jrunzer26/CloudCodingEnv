@@ -46,4 +46,11 @@ router.post('/getQuizQuestions', function(req, res, next) {
   });
 });
 
+router.post('/submitAnswers', function(req, res, next) {
+  Quizzes.gradeQuiz(req.body.quizId, "jason.runzer@uoit.net", req.body.answers, function(results) {
+    console.log("done");
+     res.status(200).json({results});
+  });
+});
+
 module.exports = router;

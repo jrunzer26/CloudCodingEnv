@@ -58,5 +58,63 @@ exports.getQuizQuestions = function(quizId, callback) {
     .catch(function(err) {
       console.log(err);
       callback(null);
-    })
+    });
 }
+
+exports.gradeQuiz = function(quizId, email, answers, callback) {
+  // see if the user already did the quiz.
+  var results = {quizId: quizId, mark: 0, results: [], success: "false"};
+  var grade = 0;
+  var totalQuestions = answers.length;
+  var totalCorrectAnswers = 0;
+  console.log(totalQuestions);
+
+  Promise.all(answers.map(function(answer) {
+    return db.any('SELECT * FROM Answers WHERE "questionID" = $1 AND "correctAnswer" = true', [answer.questionId])
+      .then(function(correctAnswer) {
+        console.log(correctAnswer[0]);
+        if(correctAnswer[0].id == answer.answerId) {
+          results.results.push({givenAnswer: answer, correct: "true"});
+          totalCorrectAnswers++
+        } else {
+          results.results.push({givenAnswer: answer, correct: "false"});
+        }
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+   }))
+   .then(function() {
+     results.success = "false";
+     var mark = totalCorrectAnswers / totalQuestions;
+     results.mark = mark;
+     db.any('SELECT * FROM QuizResults WHERE "email" = $1 AND "quizID" = $2;', [email, quizId])
+      .then(function(data) {
+        if (data.length > 0) {
+          db.none('UPDATE QuizResults SET "quizID" = $1, "email" = $2, "mark" = $3;', [quizId, email, mark])
+          .then(function() {
+            callback(results);
+          })
+          .catch(function(err) {
+            callback(err);
+          });
+        } else {
+          db.none('INSERT INTO QuizResults ("quizID", "email", "mark") VALUES ($1, $2, $3);', [quizId, email, mark])
+          .then(function() {
+            callback(results);
+          })
+          .catch(function(err) {
+            callback(err);
+          });
+        }
+      })
+     .catch(function(err) {
+       console.log(err);
+     })
+   })
+   .catch(function(err) {
+     console.log(err);
+     callback({success:"false"});
+  });
+}
+
