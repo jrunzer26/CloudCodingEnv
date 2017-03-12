@@ -1,0 +1,10 @@
+extends nav
+
+block extraScripts
+  script(src="javascripts/quiz-controller.js")
+block content
+    #quizFeed.container
+      #1.quiz
+        h3(href="/quiz?quizid=1") Quiz 123
+        .date Jan 27
+

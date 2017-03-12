@@ -1,0 +1,10 @@
+extends nav
+
+block extraScripts
+  script(src="javascripts/login-controller.js")
+
+block content
+  #logoContainer
+    img(id="img-logo" class="img-circle img-responsive" src="/images/Cpp.png")
+  .container
+    #gSignIn.g-signin2(data-onsuccess="onSignIn" data-theme="dark")

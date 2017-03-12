@@ -8,6 +8,9 @@ html
     link(rel='stylesheet', href='/stylesheets/font-awesome.css')
     link(rel='stylesheet', href='/stylesheets/bootstrap-social.css')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
+    meta(name="google-signin-scope" content="profile email")
+    meta(name="google-signin-client_id" content="957314887645-6p2samrj66sicgk3ruopl4b3bis3ksv1.apps.googleusercontent.com")
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     script(src="/javascripts/jquery.cookie.js")
     script(src="javascripts/default.js")
     block extraScripts
@@ -26,8 +29,9 @@ html
           .centered
             #menuIconOpen
               i.fa.fa-bars.fa-lg(onclick="closeNav()")
+        a(href="/") Home
         a(href="#") Programs
-        a(href="#") Quiz
+        a(href="/quiz") Quiz
         a(href="#") Instructor Programs
     block content
     footer(class="footer")

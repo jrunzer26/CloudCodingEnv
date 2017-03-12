@@ -3,6 +3,7 @@ var fs = require('fs');
 var readline = require('readline');
 var spawn = require('child_process').spawn;
 var router = express.Router();
+var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
