@@ -1,5 +1,6 @@
 var currentProgram = "";
 var editor
+var listOfPrograms = {};
 
 $(document).ready(function() {
 	var code = $(".codemirror-textarea")[0];
@@ -28,6 +29,14 @@ $(document).ready(function() {
 
 });
 
+
+function setEditorText(info){
+	editor.setValue(info);
+}
+
+function getEditorText() {
+	return editor.getValue();
+}
 
 function testFunction() {
 	$.ajax({
@@ -74,6 +83,17 @@ function closeProgram(id) {
 
 function askSave() {
 	// pops up to ask if the user would like to save their program.
+	alert("Do you want to save file: "+ currentProgram);
+	saveFile(currentProgram);
+}
+
+function newFile() {
+	var fileName = window.prompt("Enter file name: ", "testFile");
+	var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p class="tableCol">'+fileName+'</p><i onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
+    $('#programsList').append(htmlCode);
+    switchProgram(fileName);
+    listOfPrograms[fileName] = getEditorText();
+
 }
 
 // displays the next program on the list
@@ -81,11 +101,23 @@ function openNextProgram() {
 	
 }
 
+function quickSaveFile(id) {
+	listOfPrograms[id] = getEditorText();
+}
+
+function quickLoadFile(id) {
+	if(listOfPrograms[id]) {
+		editor.setValue(listOfPrograms[id]);
+	}
+}
+
 function switchProgram(id) {
+	quickSaveFile(currentProgram);
 	unselectProgram(currentProgram);
 	selectProgram(id);
 	currentProgram = id;
 	console.log("switch: " + id);
+	console.log(listOfPrograms);
 }
 
 function unselectProgram(id) {
@@ -96,6 +128,5 @@ function unselectProgram(id) {
 function selectProgram(id) {
 	console.log('select program');
 	$('#' + id).addClass("selectedProgram");
-	// set codemirror text not working
-	editor.setValue('cout << "otherProgram" endl;');
+	quickLoadFile(id);
 }

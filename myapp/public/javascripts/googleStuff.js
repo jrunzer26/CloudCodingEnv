@@ -10,19 +10,6 @@ var editor;
   }
 
 
-  $(document).ready(function() {
-    var code = $(".codemirror-textarea")[0];
-    editor = CodeMirror.fromTextArea(code, {
-      lineNumbers : true,
-      value: "function myScript(){return 100;}\n",
-      mode: "text/x-c++src",
-      theme: "default"
-    });
-
-
-  });
-
-
   function initClient() {
     // Retrieve the discovery document for version 3 of Google Drive API.
     // In practice, your app can retrieve one or more discovery documents.
@@ -93,18 +80,24 @@ var editor;
     setSigninStatus();
   }
 
-  function saveFile() {
+  function saveFile(fileName) {
+      var tempFileName;
+      if(fileName == "") {
+        tempFileName='test.c';
+      } else {
+        tempFileName = fileName;
+      }
       const boundary = '-------314159265358979323846';
       const delimiter = "\r\n--" + boundary + "\r\n";
       const close_delim = "\r\n--" + boundary + "--";
       console.log(ENGRFolderId);
       var fileMetadata = {
-      'title' : 'heynow.c',
+      'title' : tempFileName,
       'mimeType' : 'text/plain',
       'parents': [{"id": ENGRFolderId}]
       };
 
-      var base64Data = btoa(editor.getValue());
+      var base64Data = btoa(getEditorText());
       var multipartRequestBody =
         delimiter +
         'Content-Type: application/json\r\n\r\n' +
@@ -130,8 +123,7 @@ var editor;
   }
 
   function readFiles(id) {
-    console.log(ENGRFolderId);
-    console.log(id);
+    var titleValue;
     console.log("reading files");
     var request = gapi.client.request({
         'path': '/drive/v2/files',
@@ -143,12 +135,17 @@ var editor;
         for(var i = 0; i < resp.items.length; i++) {
           console.log(resp.items[i].title);
           if(i == 0) {
+            titleValue = resp.items[i].title;
             $.ajax({
               type: 'GET',
               url: '/getFile',
               data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.items[i].downloadUrl},
               success: function(output) {
-                editor.setValue(output);
+                
+                var htmlCode = '<div id="'+titleValue+'" onclick="switchProgram(\''+titleValue+'\')" class="program tableCol"><p class="tableCol">'+titleValue+'</p><i onclick="closeProgram(\''+titleValue+'\')" class="fa fa-times tabelCol"></i></div>';
+                 $('#programsList').append(htmlCode);
+                 switchProgram(titleValue);
+                 setEditorText(output);
               }
             });
           }
@@ -170,9 +167,6 @@ var editor;
         ENGRFolderId = resp.id;
       });
   }
-
-
-
 
 
   function checkForFolder() {

@@ -13,30 +13,18 @@ block extraScripts
 block content
   #backgroundContainer
     #utilityBar
-      button.tableCol.btn-sm(type="submit" class="btn" id="save" onclick="saveFile()") Save
+      button.tableCol.btn-sm(type="submit" class="btn" id="save" onclick="askSave()") Save
+      button.tableCol.btn-sm(type="submit" class="btn" id="new" onclick="newFile()") New
       button#sign-in-or-out-button(style='margin-left: 25px') Sign In/Authorize
       button#revoke-access-button(style='display: none; margin-left: 25px') Revoke access
-      button.tableCol.btn-sm(type="submit" class="btn" id="test" onclick="test()") Test
-      button.tableCol.btn-sm(type="submit" class="btn" id="folder" onclick="folderCreate()") Folder
       #auth-status(style='display: inline; padding-left: 25px')
       hr
-
-      #gSignInWrapper
-        span.label Sign in with:
-        #customBtn.customGPlusSignIn
-          span.icon
-          span.buttonText Google
       #name
       #programsList.tableCol
-        .program.tableCol(id="aProgram" onclick="switchProgram(\"aProgram\")")
-          p.tableCol aProgram.cpp
-          i.fa.fa-times.tabelCol(onclick="closeProgram(\"aProgram\")")
-        .program.tableCol(id="a2ndProgram" onclick="switchProgram(\"a2ndProgram\")")
-          p.tableCol a2ndProgram.cpp
-          i.fa.fa-times.tabelCol(onclick="closeProgram(\"a2ndProgram\")")
+
     #content
       #codingSection.half
-        textarea(class="codemirror-textarea") #include <iostream>
+        textarea(class="codemirror-textarea" id="testView") #include <iostream>
           | int main() {
           |   std::cout << "Hello World!\n";
           | }
