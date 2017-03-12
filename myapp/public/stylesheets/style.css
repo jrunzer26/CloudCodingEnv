@@ -2,7 +2,7 @@ body {
   padding: 0px;
   margin:0px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background-color: 	#E0E0E0;
+  background-color: 	#f0f0f0;
 }
 
 a {
@@ -80,7 +80,7 @@ a {
 }
 
 .sidenav a:hover, .offcanvas a:focus{
-    color: #989898;;
+    color: #989898;
 }
 
 .sidenav .closebtn {
@@ -232,4 +232,12 @@ a {
 
 .g-signin2 > div{
   margin: 0 auto;
+}
+
+.radio {
+  margin-left: 16px;
+}
+
+#questions {
+  margin-top: 16px;
 }
