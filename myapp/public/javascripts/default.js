@@ -76,6 +76,7 @@ function closeNav() {
 function closeProgram(id) {
 	console.log('closing program: ' + id);
 	askSave();
+	delete listOfPrograms[id];
 	$('#' + id).remove();
 	// todo: remove program from program list
 	openNextProgram();
@@ -92,13 +93,15 @@ function newFile() {
 	var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p class="tableCol">'+fileName+'</p><i onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
     $('#programsList').append(htmlCode);
     switchProgram(fileName);
-    listOfPrograms[fileName] = getEditorText();
+   // listOfPrograms[fileName] = getEditorText();
 
 }
 
 // displays the next program on the list
 function openNextProgram() {
-	
+	console.log(Object.keys(listOfPrograms)[0]);
+	$('#' + Object.keys(listOfPrograms)[0]).addClass("selectedProgram");
+	quickLoadFile(Object.keys(listOfPrograms)[0]);
 }
 
 function quickSaveFile(id) {
@@ -108,16 +111,20 @@ function quickSaveFile(id) {
 function quickLoadFile(id) {
 	if(listOfPrograms[id]) {
 		editor.setValue(listOfPrograms[id]);
+	} else {
+		editor.setValue("");
 	}
 }
 
 function switchProgram(id) {
-	quickSaveFile(currentProgram);
+	if(currentProgram != "") {
+		console.log("Inst that Ironic");
+		quickSaveFile(currentProgram);
+	}
 	unselectProgram(currentProgram);
 	selectProgram(id);
 	currentProgram = id;
 	console.log("switch: " + id);
-	console.log(listOfPrograms);
 }
 
 function unselectProgram(id) {
