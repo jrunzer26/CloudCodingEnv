@@ -11,6 +11,8 @@ $(document).ready(function() {
   }
 });
 
+// QUIZ HUB 
+
 /**
  * Gets and loads the quizzes.
  */
@@ -20,6 +22,7 @@ function getQuizPostings() {
     url: '/quiz/quizListings',
     success: function(output) {
       loadQuizDescriptions(output);
+      loadMarks();
     }
   });
 }
@@ -46,6 +49,33 @@ function appendQuizInfo(data) {
       '<h3><a href="/quiz?quizid='+data.id+'">'+data.name+'</a></h3>'+
     '<div class="date">'+date.toDateString()+'</div></div>');
 }
+
+/**
+ * Inserts the marks in the quiz listing.
+ */
+function loadMarks() {
+  $.ajax({
+    type: 'POST',
+    data: {email: "jason.runzer@uoit.net"},
+    url: '/quiz/getQuizMarks',
+    success: function(output) {
+      inputQuizMarks(output);
+    }
+  });
+}
+
+/**
+ * Inputs the quiz marks into each question.
+ * @param {*} data 
+ */
+function inputQuizMarks(data) {
+  for(var i = 0; i < data.length; i++) {
+    console.log(data);
+    $('#'+data[0].id).append('<div>' + data[0].mark * 100 + '%</div>');
+  }
+}
+
+// QUIZ
 
 /**
  * Loads the quiz questions from the server
@@ -137,8 +167,6 @@ function submitQuiz() {
  */
 function postQuizAnswers(collectedAnswers) {
   console.log("posting quiz answers")
-  console.log(collectedAnswers.length);
-  console.log(GLOBAL_QUIZ_ID);
   // append id/google auth
   var data = {
     userID: "jason.runzer@uoit.net",
@@ -157,10 +185,11 @@ function postQuizAnswers(collectedAnswers) {
   });
 }
 
-
+/**
+ * Loads the results from the quiz
+ * @param {*} data 
+ */
 function loadResults(data) {
-  console.log("successfully finished quiz.");
-  console.log(data);
   $('#mark').text('Mark: ' + data.results.mark * 100 + '%');
   $("input[type=radio]").attr('disabled', true);
   showWrongAnswers(data);
@@ -168,6 +197,10 @@ function loadResults(data) {
   $('#quizModal').modal('toggle');
 }
 
+/**
+ * Inserts the fa-icon into the quiz question.
+ * @param {*} data 
+ */
 function showWrongAnswers(data) {
   var resultsArray = data.results.results;
   for(var i = 0; i< resultsArray.length; i++) {
@@ -181,6 +214,9 @@ function showWrongAnswers(data) {
   }
 }
 
+/**
+ * Changes the submit quiz button into the retry quiz button.
+ */
 function toggleRetryButton() {
   $('#submitQuiz').attr("onclick", "retry()");
   $('#submitQuiz').text("Retry Quiz");

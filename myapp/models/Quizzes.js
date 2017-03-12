@@ -61,6 +61,9 @@ exports.getQuizQuestions = function(quizId, callback) {
     });
 }
 
+/**
+ * Grades the quiz for the user.
+ */
 exports.gradeQuiz = function(quizId, email, answers, callback) {
   // see if the user already did the quiz.
   var results = {quizId: quizId, mark: 0, results: [], success: "false"};
@@ -118,3 +121,15 @@ exports.gradeQuiz = function(quizId, email, answers, callback) {
   });
 }
 
+/**
+ * Gets the quiz marks for the user.
+ */
+exports.getQuizMarks = function(email, callback) {
+  db.any('SELECT * FROM QuizResults WHERE "email" = $1;', [email])
+  .then(function(results){
+    callback(results);
+  })
+  .catch(function(err) {
+    callback(err);
+  })
+}
