@@ -13,6 +13,7 @@ var GoogleAuth = require('google-auth-library');
 var client = new auth.OAuth2("814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com", '', '');
 
 var router = express.Router();
+var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
