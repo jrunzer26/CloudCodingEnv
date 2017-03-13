@@ -67,8 +67,7 @@ var editor;
       $('#revoke-access-button').css('display', 'inline-block');
       $('#auth-status').html('You are currently signed in and have granted ' +
           'access to this app.');
-      console.log(GoogleAuth.signIn());
-     // checkForFolder();
+     	 checkForFolder();
     } else {
       $('#sign-in-or-out-button').html('Sign In/Authorize');
       $('#revoke-access-button').css('display', 'none');
