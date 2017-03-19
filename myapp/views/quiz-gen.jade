@@ -1,1 +1,31 @@
 extends nav
+
+block extraScripts
+  script(src="javascripts/quiz-gen-controller.js")
+
+block content
+  #backgroundContainer
+    .container
+      .row
+        .col-12.col-sm-9.pull-sm-3.bd-content
+          .form-group
+            label(for="quizTitle") Title
+            input.form-control#quizTitle
+            label Questions
+            br
+            #savedQuizQuestions
+              <div><h4>What is Jasons favorite colour?</h4><form><div class="radio"><label><input type="radio" name="1" value="1">Green</label></div><div class="radio"><label><input type="radio" name="1" value="2">two spirit green</label></div></form></div>
+            #workingQuestions
+              .form-group
+                label Question
+                input.form-control
+                .radio#workingRadio
+                  <label style="width:100%;"><input type="radio" name="1" value="1"><input class="form-control"></input></label>
+                button(type="button" class="btn btn-success" onclick="addAnswer()")
+                  <i class="fa fa-plus" aria-hidden="true"></i>
+            button#addQuestion(type="button" class="btn btn-primary" onclick="addQuestion()")
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            br
+            button#saveQuiz(type="button" class="btn btn-primary" onclick="saveQuiz()")
+              <i class="fa fa-floppy-o" aria-hidden="true"></i>
+            
