@@ -9,4 +9,9 @@ router.get('/', function(req, res, next) {
     res.render('quiz-gen', { title: 'Quiz Creator' });
 });
 
+router.post('/addQuiz', function(req, res, next) {
+    console.log(req.body.quiz);
+    res.sendStatus(200);
+});
+
 module.exports = router;	
