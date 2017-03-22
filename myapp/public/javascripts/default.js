@@ -17,3 +17,11 @@ function closeNav() {
     document.getElementById("backgroundContainer").style.marginLeft = "0";
 }
 
+
+function tester() {
+	if(document.getElementById("programs").style.display == "none") {
+		document.getElementById("programs").style.display = "inline";
+	} else {
+		document.getElementById("programs").style.display = "none";
+	}	
+}

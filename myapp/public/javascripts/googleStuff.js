@@ -44,14 +44,22 @@ var editor;
     });
   }
 
+
+
   function handleAuthClick() {
     if (GoogleAuth.isSignedIn.get()) {
       // User is authorized and has clicked 'Sign out' button.
       GoogleAuth.signOut();
+       $.ajax({
+        type: 'GET',
+        url: '/login/',
+        success: function(output) {
+          window.location.href='/login';
+        }
+      })
     } else {
       // User is not signed in. Start Google auth flow.
       GoogleAuth.signIn();
-      console.log("HYE NOW I AM SIGNING IN");
     }
   }
 
@@ -59,7 +67,7 @@ var editor;
     GoogleAuth.disconnect();
   }
 
-  function setSigninStatus(isSignedIn) {
+ function setSigninStatus(isSignedIn) {
     var user = GoogleAuth.currentUser.get();
     var isAuthorized = user.hasGrantedScopes(SCOPE);
     if (isAuthorized) {
@@ -67,7 +75,7 @@ var editor;
       $('#revoke-access-button').css('display', 'inline-block');
       $('#auth-status').html('You are currently signed in and have granted ' +
           'access to this app.');
-     	 checkForFolder();
+      checkForFolder();
     } else {
       $('#sign-in-or-out-button').html('Sign In/Authorize');
       $('#revoke-access-button').css('display', 'none');
@@ -80,46 +88,142 @@ var editor;
     setSigninStatus();
   }
 
+function deleteFile() {
+    var value = confirm("Do you want to delete file: "+ currentProgram);
+    if(value == true) {
+      
+    
+    var requester = gapi.client.request({
+        'path': '/drive/v2/files',
+        'method': 'GET',
+        'params': {q:  "title = '"+currentProgram+"'"}
+    });
+    requester.execute(function(res) {
+      var request = gapi.client.request({
+        'path': '/drive/v2/files/'+res.items[0].id,
+        'method': 'DELETE'
+      });
+      request.execute();
+      var elem = document.getElementById("list"+currentProgram);
+      elem.remove();
+      closeDeletedProgram(currentProgram);
+
+    })
+  }
+} 
+
+function renameFile() {
+  var fileName = window.prompt("Enter file name: ", "testFile");
+  var requester = gapi.client.request({
+      'path': '/drive/v2/files',
+      'method': 'GET',
+      'params': {q:  "title = '"+currentProgram+"'"}
+  });
+  requester.execute(function(res){
+      var id = res.items[0].id;
+      var request = gapi.client.request({
+          'path': '/drive/v2/files/'+id,
+          'method': 'PATCH',
+          'body': {"title": fileName}
+      });
+      document.getElementById(currentProgram).setAttribute( "onclick", "switchProgram('"+fileName+"');" );
+      document.getElementById(currentProgram+"Close").setAttribute( "onclick", "closeProgram('"+fileName+"');" );
+      document.getElementById(currentProgram+"Text").innerHTML = fileName;
+      document.getElementById(currentProgram).id = fileName;
+      document.getElementById("list"+currentProgram).setAttribute("onclick", "loadFile('"+id+"');")
+      document.getElementById("list"+currentProgram).innerHTML = fileName;
+      document.getElementById("list"+currentProgram).id = "list"+fileName;
+      document.getElementById(currentProgram+"Close").id = fileName+"Close";
+      document.getElementById(currentProgram+"Text").id = fileName+"Text";
+      renamePassoff(fileName);
+      request.execute();
+  })
+}
+
+
   function saveFile(fileName) {
-      var tempFileName;
-      if(fileName == "") {
-        tempFileName='test.c';
+    console.log(fileName);
+
+    var requester = gapi.client.request({
+        'path': '/drive/v2/files',
+        'method': 'GET',
+        'params': {q:  "title = '"+fileName+"'"}
+    });
+    requester.execute(function(res) {
+      console.log(res);
+      if(res.items.length > 0 ){
+        console.log(res.items[0].id);
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const close_delim = "\r\n--" + boundary + "--";
+        console.log(ENGRFolderId);
+        var fileMetadata = {
+        'title' : fileName,
+        'mimeType' : 'text/plain',
+        'parents': [{"id": ENGRFolderId}]
+        };
+
+        var base64Data = btoa(getEditorText());
+        var multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json\r\n\r\n' +
+          JSON.stringify(fileMetadata) +
+          delimiter +
+          'Content-Type: ' + "text/plain" + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          '\r\n' +
+          base64Data +
+          close_delim;
+
+          var request = gapi.client.request({
+              'path': '/upload/drive/v2/files/'+res.items[0].id,
+              'method': 'PUT',
+              'params' : {'uploadType': 'multipart'},
+              'headers': {
+                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+              },
+              'body': multipartRequestBody
+          });
+          request.execute();
       } else {
-        tempFileName = fileName;
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const close_delim = "\r\n--" + boundary + "--";
+        console.log(ENGRFolderId);
+        var fileMetadata = {
+        'title' : fileName,
+        'mimeType' : 'text/plain',
+        'parents': [{"id": ENGRFolderId}]
+        };
+
+        var base64Data = btoa(getEditorText());
+        var multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json\r\n\r\n' +
+          JSON.stringify(fileMetadata) +
+          delimiter +
+          'Content-Type: ' + "text/plain" + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          '\r\n' +
+          base64Data +
+          close_delim;
+
+          var request = gapi.client.request({
+              'path': '/upload/drive/v2/files',
+              'method': 'POST',
+              'params' : {'uploadType': 'multipart'},
+              'headers': {
+                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+              },
+              'body': multipartRequestBody
+          });
+          request.execute(function(resp) {
+            console.log(resp);
+            var listhtmlCode = "<li id='list"+resp.title+"' onclick=loadFile('"+resp.id+"')>"+resp.title+"</li>";
+            $('#programs').append(listhtmlCode);
+          });
       }
-      const boundary = '-------314159265358979323846';
-      const delimiter = "\r\n--" + boundary + "\r\n";
-      const close_delim = "\r\n--" + boundary + "--";
-      console.log(ENGRFolderId);
-      var fileMetadata = {
-      'title' : tempFileName,
-      'mimeType' : 'text/plain',
-      'parents': [{"id": ENGRFolderId}]
-      };
-
-      var base64Data = btoa(getEditorText());
-      var multipartRequestBody =
-        delimiter +
-        'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(fileMetadata) +
-        delimiter +
-        'Content-Type: ' + "text/plain" + '\r\n' +
-        'Content-Transfer-Encoding: base64\r\n' +
-        '\r\n' +
-        base64Data +
-        close_delim;
-
-        var request = gapi.client.request({
-            'path': '/upload/drive/v2/files',
-            'method': 'POST',
-            'params' : {'uploadType': 'multipart'},
-            'headers': {
-              'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-            },
-            'body': multipartRequestBody
-        });
-        request.execute();
-
+    });
   }
 
   function readFiles(id) {
@@ -133,7 +237,8 @@ var editor;
       request.execute(function(resp) {
         console.log(resp);
         for(var i = 0; i < resp.items.length; i++) {
-          console.log(resp.items[i].title);
+          var listhtmlCode = "<li id='list"+resp.items[i].title+"' onclick=loadFile('"+resp.items[i].id+"')>"+resp.items[i].title+"</li>"
+          $('#programs').append(listhtmlCode)
           if(i == 0) {
             titleValue = resp.items[i].title;
             $.ajax({
@@ -142,8 +247,9 @@ var editor;
               data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.items[i].downloadUrl},
               success: function(output) {
                 
-                var htmlCode = '<div id="'+titleValue+'" onclick="switchProgram(\''+titleValue+'\')" class="program tableCol"><p class="tableCol">'+titleValue+'</p><i onclick="closeProgram(\''+titleValue+'\')" class="fa fa-times tabelCol"></i></div>';
+                var htmlCode = '<div id="'+titleValue+'" onclick="switchProgram(\''+titleValue+'\')" class="program tableCol"><p id="'+titleValue+'Text" class="tableCol">'+titleValue+'</p><i id="'+titleValue+'Close" onclick="closeProgram(\''+titleValue+'\')" class="fa fa-times tabelCol"></i></div>';
                  $('#programsList').append(htmlCode);
+                 listOfPrograms[titleValue] = "";
                  switchProgram(titleValue);
                  setEditorText(output);
               }
@@ -151,6 +257,32 @@ var editor;
           }
         }
       })
+  }
+
+  function loadFile(id) {
+    var request = gapi.client.request({
+        'path': '/drive/v2/files/'+id,
+        'method': 'GET'
+    });
+    request.execute(function(resp) {
+      if(Object.keys(listOfPrograms).indexOf(resp.title) < 0) {
+          $.ajax({
+          type: 'GET',
+          url: '/getFile',
+          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
+          success: function(output) {
+            
+            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p class="tableCol">'+resp.title+'</p><i onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+             $('#programsList').append(htmlCode);
+             listOfPrograms[resp.title] = "";
+             switchProgram(resp.title);
+             setEditorText(output);
+          }
+        });
+      } else {
+        switchProgram(resp.title);
+      }
+    })
   }
 
 

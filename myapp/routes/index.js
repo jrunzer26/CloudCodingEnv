@@ -17,6 +17,7 @@ var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+	console.log("SUP WITH IT");
   res.render('index', { title: 'ENGR 1200' });
 });
 

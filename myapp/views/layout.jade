@@ -11,6 +11,7 @@ html
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
     script(src="/javascripts/jquery.cookie.js")
     script(src="javascripts/default.js")
+    script(src="javascripts/googleStuff.js")
     block extraScripts
     
   body
@@ -28,7 +29,8 @@ html
             #menuIconOpen
               i.fa.fa-bars.fa-lg(onclick="closeNav()")
         a(href="/") Home
-        a(href="#") Programs
+        a(href="#" onclick="tester()") Programs
+        #programs(style='display: none')
         a(href="/quiz") Quiz
         a(href="#") Instructor Programs
         // need to add this in when the user is an admin

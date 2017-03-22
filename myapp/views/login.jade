@@ -2,7 +2,16 @@ extends nav
 
 block extraScripts
   script(src="javascripts/login-controller.js")
+  script(async='', defer='', src='https://apis.google.com/js/api.js', onload='this.onload=function(){};handleClientLoad()', onreadystatechange="if (this.readyState === 'complete') this.onload()")
+  link(rel='stylesheet', href='stylesheets/googleButton.css')
+
+
 
 block content
   #logoContainer
     img(id="img-logo" class="img-circle img-responsive" src="/images/Cpp.png")
+  #gSignInWrapper
+    span.label Sign in with:
+    #customBtn.customGPlusSignIn
+        span.icon
+        span.buttonText Google

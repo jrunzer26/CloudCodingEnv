@@ -5,8 +5,8 @@ block extraScripts
   script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/mode/clike/clike.js")
   script(language="JavaScript" type="text/javascript" src="javascripts/googleStuff.js")
   script(language="JavaScript" type="text/javascript" src="javascripts/index-controller.js")
-  script(async='', defer='', src='https://apis.google.com/js/api.js', onload='this.onload=function(){};handleClientLoad()', onreadystatechange="if (this.readyState === 'complete') this.onload()")
   script(language="JavaScript" type="text/javascript" src="plugin/codemirror/codemirror-5.23.0/mode/javascript/javascript.js")
+  script(async='', defer='', src='https://apis.google.com/js/api.js', onload='this.onload=function(){};handleClientLoad()', onreadystatechange="if (this.readyState === 'complete') this.onload()")
 
 
 
@@ -16,19 +16,17 @@ block content
     #utilityBar
       button.tableCol.btn-sm(type="submit" class="btn" id="save" onclick="askSave()") Save
       button.tableCol.btn-sm(type="submit" class="btn" id="new" onclick="newFile()") New
+      button.tableCol.btn-sm(type="submit" class="btn" id="delete" onclick="deleteFile()") Delete
+      button.tableCol.btn-sm(type="submit" class="btn" id="rename" onclick="renameFile()") Rename
       button#sign-in-or-out-button(style='margin-left: 25px') Sign In/Authorize
       button#revoke-access-button(style='display: none; margin-left: 25px') Revoke access
-      #auth-status(style='display: inline; padding-left: 25px')
       hr
       #name
       #programsList.tableCol
 
     #content
       #codingSection.half
-        textarea(class="codemirror-textarea" id="testView") #include <iostream>
-          | int main() {
-          |   std::cout << "Hello World!\n";
-          | }
+        textarea(class="codemirror-textarea" id="testView")
       .half#inputContainers
         #inputSection.split
           p Compile Time Arguments
