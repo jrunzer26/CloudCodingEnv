@@ -91,10 +91,18 @@ function askSave() {
 
 function newFile() {
 	var fileName = window.prompt("Enter file name: ", "testFile");
-	var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p class="tableCol">'+fileName+'</p><i onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
-    $('#programsList').append(htmlCode);
-    listOfPrograms[fileName] = "";
-    switchProgram(fileName);
+	if(Object.keys(listOfPrograms).indexOf(fileName) > -1) {
+		var value = confirm("That file already exists! Do you wish to overwrite that file with an empty file?");
+		if(value) {
+			listOfPrograms[fileName] = "";
+			editor.setValue("");
+		}
+	} else {
+		var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p class="tableCol">'+fileName+'</p><i onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
+    	$('#programsList').append(htmlCode);
+    	listOfPrograms[fileName] = "";
+    	switchProgram(fileName);
+	}
    // listOfPrograms[fileName] = getEditorText();
 
 }

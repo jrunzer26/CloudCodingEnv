@@ -150,41 +150,42 @@ function renameFile() {
         'params': {q:  "title = '"+fileName+"'"}
     });
     requester.execute(function(res) {
-      console.log(res);
       if(res.items.length > 0 ){
-        console.log(res.items[0].id);
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
-        console.log(ENGRFolderId);
-        var fileMetadata = {
-        'title' : fileName,
-        'mimeType' : 'text/plain',
-        'parents': [{"id": ENGRFolderId}]
-        };
+        var val = confirm("Do you want to overwrite the file: "+fileName+ " with that you currently have?");
+        if(val) {
+          const boundary = '-------314159265358979323846';
+          const delimiter = "\r\n--" + boundary + "\r\n";
+          const close_delim = "\r\n--" + boundary + "--";
+          console.log(ENGRFolderId);
+          var fileMetadata = {
+          'title' : fileName,
+          'mimeType' : 'text/plain',
+          'parents': [{"id": ENGRFolderId}]
+          };
 
-        var base64Data = btoa(getEditorText());
-        var multipartRequestBody =
-          delimiter +
-          'Content-Type: application/json\r\n\r\n' +
-          JSON.stringify(fileMetadata) +
-          delimiter +
-          'Content-Type: ' + "text/plain" + '\r\n' +
-          'Content-Transfer-Encoding: base64\r\n' +
-          '\r\n' +
-          base64Data +
-          close_delim;
+          var base64Data = btoa(getEditorText());
+          var multipartRequestBody =
+            delimiter +
+            'Content-Type: application/json\r\n\r\n' +
+            JSON.stringify(fileMetadata) +
+            delimiter +
+            'Content-Type: ' + "text/plain" + '\r\n' +
+            'Content-Transfer-Encoding: base64\r\n' +
+            '\r\n' +
+            base64Data +
+            close_delim;
 
-          var request = gapi.client.request({
-              'path': '/upload/drive/v2/files/'+res.items[0].id,
-              'method': 'PUT',
-              'params' : {'uploadType': 'multipart'},
-              'headers': {
-                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-              },
-              'body': multipartRequestBody
-          });
-          request.execute();
+            var request = gapi.client.request({
+                'path': '/upload/drive/v2/files/'+res.items[0].id,
+                'method': 'PUT',
+                'params' : {'uploadType': 'multipart'},
+                'headers': {
+                  'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                },
+                'body': multipartRequestBody
+            });
+            request.execute();
+        }
       } else {
         const boundary = '-------314159265358979323846';
         const delimiter = "\r\n--" + boundary + "\r\n";
