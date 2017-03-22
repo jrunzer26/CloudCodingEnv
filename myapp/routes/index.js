@@ -35,7 +35,7 @@ router.get('/code', function(req,res,next) {
 		console.log("stdout: " + data);
 	});
 	compile.stderr.on('data', function (data) {
-		console.log(String(data));
+		console.log("The error is on the complie side: "+String(data));
 	});
 	compile.on('close', function (data) {
 		if(data ===0) {
@@ -46,7 +46,7 @@ router.get('/code', function(req,res,next) {
 				console.log(String(output));
 			});
 			run.stderr.on('data', function (output) {
-				console.log(String(output));
+				console.log("The error is on the run side: "+String(output));
 			});
 			run.on('close', function(output) {
 				console.log('stdout: '+ output);
