@@ -1,3 +1,10 @@
+var GoogleAuth;
+var ENGRFolderId;
+var existingFolders = [];
+var editor;
+var currentProgram;
+var listOfPrograms = {};
+
 $(document).ready(function() {
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
@@ -22,56 +29,131 @@ $(document).ready(function() {
 			}
 		})
 	});
+
 });
 
-/**
- * Closes the program tab.
- * @param {*} id the id of the program
- */
+function setEditorText(info){
+	editor.setValue(info);
+}
+
+function getEditorText() {
+	return editor.getValue();
+}
+
+function testFunction() {
+	$.ajax({
+		type: 'GET',
+		url: '/auth',
+		success: function(output) {
+			console.log(output);
+		}
+	})
+}
+
+function onSignIn(googleUser) {
+  var profile = googleUser.getBasicProfile();
+  var id_token = googleUser.getAuthResponse().id_token;
+  console.log(id_token);
+}
+
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+
+
 function closeProgram(id) {
-	console.log('closing program: ' + id);
 	askSave();
-	$('#' + id).remove();
-	// todo: remove program from program list
+	delete listOfPrograms[id];
+	var elem = document.getElementById(id);
+	elem.remove();
 	openNextProgram();
+}
+
+function closeDeletedProgram(id) {
+	delete listOfPrograms[id];
+	var elem = document.getElementById(id);
+	elem.remove();
+	openNextProgram();
+	
 }
 
 function askSave() {
 	// pops up to ask if the user would like to save their program.
+	var value = confirm("Do you want to save file: "+ currentProgram);
+	if(value == true) {
+		saveFile(currentProgram);
+	} 
+	console.log(value);
+}
+
+function newFile() {
+	var fileName = window.prompt("Enter file name: ", "testFile");
+	if(Object.keys(listOfPrograms).indexOf(fileName) > -1) {
+		var value = confirm("That file already exists! Do you wish to overwrite that file with an empty file?");
+		if(value) {
+			listOfPrograms[fileName] = "";
+			editor.setValue("");
+		}
+	} else {
+		var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p class="tableCol">'+fileName+'</p><i onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
+    	$('#programsList').append(htmlCode);
+    	listOfPrograms[fileName] = "";
+    	switchProgram(fileName);
+	}
+   // listOfPrograms[fileName] = getEditorText();
+
 }
 
 // displays the next program on the list
 function openNextProgram() {
-	
+	$('#' + Object.keys(listOfPrograms)[0]).addClass("selectedProgram");
+	currentProgram = Object.keys(listOfPrograms)[0];
+	quickLoadFile(Object.keys(listOfPrograms)[0]);
 }
 
-/**
- * Switches programs when a program tab is clicked.
- * @param {*} id 
- */
-function switchProgram(id) {
-	unselectProgram(currentProgram);
-	selectProgram(id);
+function quickSaveFile(id) {
+	listOfPrograms[id] = getEditorText();
+}
+
+function quickLoadFile(id) {
+	if(listOfPrograms[id]) {
+		editor.setValue(listOfPrograms[id]);
+	} else {
+		editor.setValue("");
+	}
+}
+
+function renamePassoff(id) {
+	listOfPrograms[id] = getEditorText();
+	delete listOfPrograms[currentProgram];	
 	currentProgram = id;
-	console.log("switch: " + id);
 }
 
-/**
- * Unselects the program provided.
- * @param {*} id 
- */
+function switchProgram(id) {
+	if(Object.keys(listOfPrograms).indexOf(id) > -1) {
+			if((currentProgram != "") || (currentProgram != undefined)) {
+			if(currentProgram != undefined) {
+				quickSaveFile(currentProgram);
+			}
+		}
+		unselectProgram(currentProgram);
+		selectProgram(id);
+		currentProgram = id;
+		//console.log("switch: " + id);
+	} else {
+	}
+}
+
 function unselectProgram(id) {
 	if (id != "")
 		$('#' + id).removeClass("selectedProgram");
 }
 
-/**
- * Selects the program provided.
- * @param {*} id 
- */
 function selectProgram(id) {
-	console.log('select program');
+	//console.log('select program');
 	$('#' + id).addClass("selectedProgram");
-	// set codemirror text not working
-	editor.setValue('cout << "otherProgram" endl;');
+	quickLoadFile(id);
 }

@@ -1,0 +1,95 @@
+/* !!! MUST BE LOADED AFTER ANY libs/css/codemirror STYLES !!! */
+
+html, body {
+  width: 99%;
+  height: 99%; 
+}
+
+/* Initial styling of the CodeMirror editor.
+   May be overwritten by CodeMirror and extensions */   
+.CodeMirror {
+	position:  relative;
+	display:   block;
+	height:    auto;
+	/*width:     100%;*/
+	font-size: 13pt;
+}
+
+/* Local styling of the CodeMirror editor */
+.cm-editor {
+   overflow-y: auto;
+}
+
+/* The "run" and "reset" buttons for the CodeMirror script*/
+.buttons {
+	clear: both;
+	text-align: right;
+}
+
+/* When a script with `console.log()` is run && `showConsole()`
+	is called the output-div's 'hidden' class is removed. 
+*/
+.output-div {
+	overflow-y: auto;
+}
+
+/* Each editor field can of course be independently styled */
+#beOutstanding > .buttons {
+	clear: both;
+	text-align: left;
+}
+
+/*			.half-width {
+	width: 50%;
+}*/
+
+/* MORE INTERACTIVE set-size */
+
+/* Initial styling of the CodeMirror editor .
+   May be overwritten by CodeMirror and extensions */ 
+
+.set-size {
+	width:      50vw;
+}
+
+.set-size .CodeMirror{
+	position:   relative;
+	display:    block;
+	height:     auto;
+	height:     calc(100vh - 4em);
+	font-size:  13pt;
+	overflow-y: none;
+}
+
+/* Local styling of the CodeMirror editor */
+.set-size .cm-editor {
+	min-height: 3em;
+	height:     100%;
+}
+
+/* The "run" and "reset" buttons for the CodeMirror script
+	with the .set-size class */
+.set-size > .buttons {
+	clear:      both;
+	display:    block;
+	width:      100%;
+	height:     1.5em;
+	text-align: center;
+}
+
+/* When a script with `console.log()` is run && `showConsole()` 
+	is called the output-div's 'hidden' class is removed.
+*/
+.set-size > .output-div {
+	overflow-y: auto;
+}
+
+/* When a script with `console.log()` is run && `showConsole()` 
+	is called the '<div class="CodeMirror cm-editor">' also gets the 
+	'log-shown' class.  This can also be used to make adjust layouts.  
+*/
+.set-size.log-shown > .CodeMirror,
+.set-size.log-shown > .output-div {
+	height: 45vh;
+	height: calc(50vh - 2.0em);
+}
