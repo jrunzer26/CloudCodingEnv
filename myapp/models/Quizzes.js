@@ -133,3 +133,25 @@ exports.getQuizMarks = function(email, callback) {
     callback(err);
   })
 }
+
+exports.addQuiz = function(quiz, email, callback) {
+  db.any('INSERT INTO Quizzes ("name", "creator") VALUES ($1, $2) RETURNING id;', [quiz.title, email])
+  .then(function(id) {
+    console.log(id[0].id);
+    Promise.all(quiz.questions.map(function(question) {
+      console.log(question);
+      db.any('INSERT INTO Questions ("question", "quizID") VALUES ($1, $2) RETURNING id;', [question.question, id[0].id])
+      .then(function(id) {
+        console.log("question id: " + id[0].id);
+      })
+      .catch(function(err) {
+        console.log("error in questions");
+        console.log(err);
+      });
+    }));
+    
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
+}

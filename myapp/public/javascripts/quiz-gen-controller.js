@@ -75,6 +75,10 @@ function postQuiz(quiz) {
     url: '/quiz-gen/addQuiz',
     success: function(output) {
       alert('success!');
+      window.location = '/';
+    },
+    error: function() {
+      alert('fail');
     }
   });
 }
