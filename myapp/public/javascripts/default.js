@@ -1,5 +1,3 @@
-var currentProgram = "";
-var editor
 
 /**
  * Opens the navigation drawer.
@@ -17,4 +15,13 @@ function openNav() {
 function closeNav() {
     document.getElementById("mySidenav").style.width = "0";
     document.getElementById("backgroundContainer").style.marginLeft = "0";
+}
+
+
+function tester() {
+	if(document.getElementById("programs").style.display == "none") {
+		document.getElementById("programs").style.display = "inline";
+	} else {
+		document.getElementById("programs").style.display = "none";
+	}	
 }
