@@ -2,6 +2,7 @@ var express = require('express');
 var fs = require('fs');
 var readline = require('readline');
 var spawn = require('child_process').spawn;
+var exec = require('child_process').exec;
 var readline = require('readline');
 var google = require('googleapis');
 var GoogleAuth = require('google-auth-library');
@@ -42,6 +43,7 @@ router.get('/code', function(req,res,next) {
 		if(data ===0) {
 			var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
 			var run = spawn(temp, array);
+			setTimeout(function(){run.kill()}, 5000);
 			run.stdin.end(cin);
 			run.stdout.on('data', function (output) {
 				outputText += String(output) + "\n";
@@ -53,6 +55,7 @@ router.get('/code', function(req,res,next) {
 			run.on('close', function(output) {
 				console.log('stdout: '+ output);
 				res.send(outputText);
+				exec('rm '+temper);
 			});
 		}
 	})
