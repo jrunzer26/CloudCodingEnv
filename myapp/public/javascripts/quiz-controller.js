@@ -42,12 +42,10 @@ function loadQuizDescriptions(quizData) {
  * @param {*} data a quiz
  */
 function appendQuizInfo(data) {
-  var date = new Date(Date.parse(data.expDate));
-  console.log(date);
   $('#quizFeed').append(
     '<div id="'+data.id+'" class="quiz">'+
-      '<h3><a href="/quiz?quizid='+data.id+'">'+data.name+'</a></h3>'+
-    '<div class="date">'+date.toDateString()+'</div></div>');
+      '<h3><a href="/quiz?quizid='+data.id+'">'+data.name+'</a></h3>'
+  );
 }
 
 /**
@@ -70,8 +68,8 @@ function loadMarks() {
  */
 function inputQuizMarks(data) {
   for(var i = 0; i < data.length; i++) {
-    console.log(data);
-    $('#'+data[0].id).append('<div>' + data[0].mark * 100 + '%</div>');
+    console.log(data[i]);
+    $('#'+data[i].quizID).append('<div>' + data[i].mark * 100 + '%</div>');
   }
 }
 
@@ -180,6 +178,7 @@ function postQuizAnswers(collectedAnswers) {
     contentType: 'application/json',
     url: '/quiz/submitAnswers',
     success: function(output) {
+      console.log('output: ' + output);
       loadResults(output);
     }
   });
@@ -203,6 +202,7 @@ function loadResults(data) {
  */
 function showWrongAnswers(data) {
   var resultsArray = data.results.results;
+  console.log(data);
   for(var i = 0; i< resultsArray.length; i++) {
     var optionText = $("input:radio[name='"+resultsArray[i].givenAnswer.questionId+"'][value='"+resultsArray[i].givenAnswer.answerId+"']").parent().html();
     var icon = "";
