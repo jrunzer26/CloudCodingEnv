@@ -17,13 +17,21 @@ $(document).ready(function() {
 
 	$("#showText").click(function() {
 		var text = editor.getValue();
+		var fileName = "";
 		var inputParams = $('#inputParams').val().split(",");
 		var cinParams = $('#cinParams').val();
-		console.log(inputParams);
+		var textValue = sessionStorage.getItem("email").replace(".","").split("@");
+		if(currentProgram.lastIndexOf(".") > 0) {
+			var compileName = currentProgram.slice(0, currentProgram.lastIndexOf(".")) + ".c";
+			fileName = textValue[0].concat("_", compileName);
+		} else {
+			var compileName = currentProgram + ".c";
+			fileName = textValue[0].concat("_", compileName);
+		}	
 		$.ajax({
 			type: 'GET',
 			url: '/code',
-			data: {codeValue: text, inputList: inputParams, cin: cinParams},
+			data: {codeValue: text, inputList: inputParams, cin: cinParams, fileName: fileName},
 			success: function(output) {
 				$('#outputOfCode').val(output);
 			}
@@ -133,6 +141,7 @@ function renamePassoff(id) {
 }
 
 function switchProgram(id) {
+
 	if(Object.keys(listOfPrograms).indexOf(id) > -1) {
 			if((currentProgram != "") || (currentProgram != undefined)) {
 			if(currentProgram != undefined) {
@@ -143,6 +152,7 @@ function switchProgram(id) {
 		selectProgram(id);
 		currentProgram = id;
 		//console.log("switch: " + id);
+	
 	} else {
 	}
 }
