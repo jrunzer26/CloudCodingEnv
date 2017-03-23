@@ -30,7 +30,8 @@ router.get('/code', function(req,res,next) {
 			console.log(err);
 		}
 	});
-	var compile = spawn('g++', [name]);
+	var temper = name.slice(0, name.indexOf("_")) + ".out";
+	var compile = spawn('g++', [name, "-o", temper]);
 	compile.stdout.on('data', function(data) {
 		console.log("stdout: " + data);
 	});
