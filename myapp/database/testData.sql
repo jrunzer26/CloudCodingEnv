@@ -5,15 +5,13 @@ INSERT INTO Users ("email", "firstName", "lastName", "role") VALUES (
     'Teacher'
 );
 
-INSERT INTO Quizzes ("id", "name", "expDate", "creator") VALUES (
-    '1',
+INSERT INTO Quizzes ("name", "expDate", "creator") VALUES (
     'Quiz 1',
     '1999-01-08 04:05:06',
     'jason.runzer@uoit.net'
 );
 
-INSERT INTO Questions ("id", "question", "quizID") VALUES (
-    '1',
+INSERT INTO Questions ("question", "quizID") VALUES (
     'What is Jasons favorite colour?',
     '1'
 );
@@ -30,8 +28,7 @@ INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
     '1'
 );
 
-INSERT INTO Questions ("id", "question", "quizID") VALUES (
-    '2',
+INSERT INTO Questions ("question", "quizID") VALUES (
     'What is the output of this code?: cout <<  5 + 4 << endl;',
     '1'
 );

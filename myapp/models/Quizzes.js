@@ -71,6 +71,7 @@ exports.gradeQuiz = function(quizId, email, answers, callback) {
   var totalQuestions = answers.length;
   var totalCorrectAnswers = 0;
   console.log(totalQuestions);
+  console.log(results);
 
   Promise.all(answers.map(function(answer) {
     return db.any('SELECT * FROM Answers WHERE "questionID" = $1 AND "correctAnswer" = true', [answer.questionId])
@@ -91,14 +92,18 @@ exports.gradeQuiz = function(quizId, email, answers, callback) {
      results.success = "false";
      var mark = totalCorrectAnswers / totalQuestions;
      results.mark = mark;
+     console.log(results);
+     console.log(quizId);
      db.any('SELECT * FROM QuizResults WHERE "email" = $1 AND "quizID" = $2;', [email, quizId])
       .then(function(data) {
+        console.log('data: ' + data);
         if (data.length > 0) {
-          db.none('UPDATE QuizResults SET "quizID" = $1, "email" = $2, "mark" = $3;', [quizId, email, mark])
+          db.none('UPDATE QuizResults SET "mark" = $1 WHERE "quizID" = $2 AND "email" = $3;', [mark, quizId, email])
           .then(function() {
             callback(results);
           })
           .catch(function(err) {
+            console.log(err);
             callback(err);
           });
         } else {
@@ -107,6 +112,7 @@ exports.gradeQuiz = function(quizId, email, answers, callback) {
             callback(results);
           })
           .catch(function(err) {
+            console.log(err);
             callback(err);
           });
         }
@@ -132,4 +138,35 @@ exports.getQuizMarks = function(email, callback) {
   .catch(function(err) {
     callback(err);
   })
+}
+
+/**
+ * Adds a quiz to the database.
+ */
+exports.addQuiz = function(quiz, email, callback) {
+  db.any('INSERT INTO Quizzes ("name", "creator") VALUES ($1, $2) RETURNING id;', [quiz.title, email])
+  .then(function(id) {
+    Promise.all(quiz.questions.map(function(question) {
+      db.any('INSERT INTO Questions ("question", "quizID") VALUES ($1, $2) RETURNING id;', [question.question, id[0].id])
+      .then(function(id) {
+        Promise.all(question.answers.map(function(answer) {
+          return db.any('INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES ($1, $2, $3);', [answer.value, answer.correctAnswer, id[0].id])
+          .catch(function(err) {
+            console.log(err);
+            callback(false);
+          });
+        }))
+        .then(function() {
+          callback(true);
+        });
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+    }));
+    
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
 }

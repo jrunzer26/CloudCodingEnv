@@ -1,1 +1,26 @@
 extends nav
+
+block extraScripts
+  script(src="javascripts/quiz-gen-controller.js")
+
+block content
+  #backgroundContainer
+    .container
+      .row
+        .col-12.col-sm-9.pull-sm-3.bd-content
+          .form-group
+            label(for="quizTitle") Title
+            input.form-control#quizTitle
+            label Questions
+            br
+            #savedQuizQuestions
+            #workingQuestions                
+            #addAnswerButton
+              button(type="button" class="btn btn-success" onclick="addAnswer()")
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            button#addQuestion(type="button" class="btn btn-primary" onclick="addQuestion()")
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            br
+            button#saveQuiz(type="button" class="btn btn-primary" onclick="saveQuiz()")
+              <i class="fa fa-floppy-o" aria-hidden="true"></i>
+            
