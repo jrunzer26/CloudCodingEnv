@@ -34,7 +34,6 @@ router.get('/code', function(req,res,next) {
 	var temper = name.slice(0, name.indexOf("_")) + ".out";
 	var compile = spawn('g++', [name, "-o", temper]);
 	compile.stdout.on('data', function(data) {
-		console.log("stdout: " + data);
 	});
 	compile.stderr.on('data', function (data) {
 		res.send("While compiling your code an error occurred.\n"+String(data));
@@ -43,18 +42,24 @@ router.get('/code', function(req,res,next) {
 		if(data ===0) {
 			var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
 			var run = spawn(temp, array);
-			setTimeout(function(){run.kill()}, 5000);
+			var timeout = false;
+			setTimeout(function(){
+				run.kill();
+				timeout = true;
+			}, 2000);
 			run.stdin.end(cin);
 			run.stdout.on('data', function (output) {
 				outputText += String(output) + "\n";
-				console.log(String(output));
 			});
 			run.stderr.on('data', function (output) {
 				res.send("While running your code an error occurred.\n"+String(output));
 			});
 			run.on('close', function(output) {
-				console.log('stdout: '+ output);
-				res.send(outputText);
+				if(!timeout) {
+					res.send(outputText);
+				} else {
+					res.send("Timeout error: your program took to long to run!");
+				}
 				exec('rm '+temper);
 				exec('rm '+name);
 			});
