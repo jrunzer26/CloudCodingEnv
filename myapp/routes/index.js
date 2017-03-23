@@ -56,6 +56,7 @@ router.get('/code', function(req,res,next) {
 				console.log('stdout: '+ output);
 				res.send(outputText);
 				exec('rm '+temper);
+				exec('rm '+name);
 			});
 		}
 	})
