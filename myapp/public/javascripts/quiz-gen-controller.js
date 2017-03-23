@@ -1,9 +1,10 @@
-
-
 $(document).ready(function() {
   $('#addAnswerButton').hide();
 });
 
+/**
+ * Saves a question that is being worked on.
+ */
 function saveQuestion() {
   console.log("saveQuestion");
   $("#addQuestion").attr("onclick", "addQuestion()");
@@ -13,6 +14,9 @@ function saveQuestion() {
   saveQuestionToList(question);
 }
 
+/**
+ * Extracts a question from the input forms.
+ */
 function extractQuestion() {
   var question = {question: "", answers: []};
   question.question = $('.questionText').val();
@@ -23,10 +27,12 @@ function extractQuestion() {
     answer.answer = $(this).children(':nth-child(2)').val();
     question.answers.push(answer);
   });
-  console.log(question.question);
   return question;
 }
 
+/**
+ * Adds a question to work on.
+ */
 function addQuestion() {
   console.log('addQuestion');
   $("#addQuestion").attr("onclick", "saveQuestion()");
@@ -34,6 +40,9 @@ function addQuestion() {
   addQuestionStub();
 }
 
+/**
+ * Adds a question stub into the html.
+ */
 function addQuestionStub() {
   $('#workingQuestions').append('<label>Question</label>');
   $('#workingQuestions').append('<input class="form-control questionText">');
@@ -41,6 +50,9 @@ function addQuestionStub() {
   $('#addAnswerButton').show();
 }
 
+/**
+ * Saves the quiz to the server.
+ */
 function saveQuiz() {
   console.log("saveQuiz");
   var quiz = {title: "", questions: []};
@@ -48,26 +60,26 @@ function saveQuiz() {
   $('#savedQuizQuestions > div').each(function() {
     var question = {question: "", answers: []};
     question.question = $('h4', this).text();
-    //console.log($('form > .radio > label', this));
     $('form > .radio > label', this).each(function() {
       var answer = {};
       answer.correctAnswer = $('input', this).is(':checked');
       answer.value = $(this).text();
       question.answers.push(answer);
-      //console.log(question);
     });
     quiz.questions.push(question);
   });
   postQuiz(quiz);
-  //console.log(quiz);
 }
 
+/**
+ * Posts a quiz to the server.
+ * @param {*} quiz 
+ */
 function postQuiz(quiz) {
   var data = {
     userID: "jason.runzer@uoit.net",
     quiz: quiz
   };
-  //console.log(data);
   $.ajax({
     type: 'POST',
     data: JSON.stringify(data),
@@ -83,15 +95,12 @@ function postQuiz(quiz) {
   });
 }
 
+/**
+ * Adds an answer box to the working question.
+ */
 function addAnswer() {
-  console.log("addAnswer");
-  insertAnswerSlot();
-}
-
-function insertAnswerSlot() {
   $('#workingRadio').append('<label class="answerSlot" style="width:100%;"><input type="radio" name="1" value="1"><input class="form-control answer"></input></label>');
 }
-
 
 /**
  * Loads a question on the page.
@@ -117,15 +126,14 @@ function saveQuestionToList(question) {
 function appendAnswers(question) {
   var string = '';
   for (var i = 0; i < question.answers.length; i++) {
-    console.log(question.answers[i].answer);
     string += '<div class="radio">'+
       '<label><input type="radio" ';
     if(question.answers[i].checked) {
-      string += 'checked="'+question.answers[i].checked+'">';
+      string += 'checked="'+question.answers[i].checked+'"';
     }
+    string += '>';
     string += question.answers[i].answer+'</label>'+
       '</div>';
   }
-  console.log(string);
   return string;
 }
