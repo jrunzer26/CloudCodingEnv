@@ -17,20 +17,20 @@ var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	console.log("SUP WITH IT");
   res.render('index', { title: 'ENGR 1200' });
 });
 
 router.get('/code', function(req,res,next) {
 	var array = req.query.inputList;
 	var cin = req.query.cin;
+	var name = req.query.fileName;
 	var outputText = " ";
-	fs.writeFile("test.c", req.query.codeValue, function(err) {
+	fs.writeFile(name, req.query.codeValue, function(err) {
 		if(err) {
 			console.log(err);
 		}
 	});
-	var compile = spawn('g++', ["test.c"]);
+	var compile = spawn('g++', [name]);
 	compile.stdout.on('data', function(data) {
 		console.log("stdout: " + data);
 	});
@@ -39,7 +39,8 @@ router.get('/code', function(req,res,next) {
 	});
 	compile.on('close', function (data) {
 		if(data ===0) {
-			var run = spawn("./a.out", array);
+			var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
+			var run = spawn(temp, array);
 			run.stdin.end(cin);
 			run.stdout.on('data', function (output) {
 				outputText += String(output) + "\n";
