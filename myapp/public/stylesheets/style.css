@@ -245,3 +245,13 @@ a {
 #addQuestion {
   margin-bottom: 30px;
 }
+
+#save, #new, #delete, #rename {
+  margin-left: 10px;
+}
+
+#sign-in-or-out-button, #revoke-access-button {
+  float: right;
+  margin-top: 15px;
+  margin-right: 20px;
+}

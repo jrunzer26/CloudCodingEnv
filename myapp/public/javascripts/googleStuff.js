@@ -114,35 +114,36 @@ function deleteFile() {
 
 function renameFile() {
   var fileName = window.prompt("Enter file name: ", "testFile");
-  var requester = gapi.client.request({
-      'path': '/drive/v2/files',
-      'method': 'GET',
-      'params': {q:  "title = '"+currentProgram+"'"}
-  });
-  requester.execute(function(res){
-      var id = res.items[0].id;
-      var request = gapi.client.request({
-          'path': '/drive/v2/files/'+id,
-          'method': 'PATCH',
-          'body': {"title": fileName}
-      });
-      document.getElementById(currentProgram).setAttribute( "onclick", "switchProgram('"+fileName+"');" );
-      document.getElementById(currentProgram+"Close").setAttribute( "onclick", "closeProgram('"+fileName+"');" );
-      document.getElementById(currentProgram+"Text").innerHTML = fileName;
-      document.getElementById(currentProgram).id = fileName;
-      document.getElementById("list"+currentProgram).setAttribute("onclick", "loadFile('"+id+"');")
-      document.getElementById("list"+currentProgram).innerHTML = fileName;
-      document.getElementById("list"+currentProgram).id = "list"+fileName;
-      document.getElementById(currentProgram+"Close").id = fileName+"Close";
-      document.getElementById(currentProgram+"Text").id = fileName+"Text";
-      renamePassoff(fileName);
-      request.execute();
-  })
+  if(fileName !== null) {
+    var requester = gapi.client.request({
+        'path': '/drive/v2/files',
+        'method': 'GET',
+        'params': {q:  "title = '"+currentProgram+"'"}
+    });
+    requester.execute(function(res){
+        var id = res.items[0].id;
+        var request = gapi.client.request({
+            'path': '/drive/v2/files/'+id,
+            'method': 'PATCH',
+            'body': {"title": fileName}
+        });
+        document.getElementById(currentProgram).setAttribute( "onclick", "switchProgram('"+fileName+"');" );
+        document.getElementById(currentProgram+"Close").setAttribute( "onclick", "closeProgram('"+fileName+"');" );
+        document.getElementById(currentProgram+"Text").innerHTML = fileName;
+        document.getElementById(currentProgram).id = fileName;
+        document.getElementById("list"+currentProgram).setAttribute("onclick", "loadFile('"+id+"');")
+        document.getElementById("list"+currentProgram).innerHTML = fileName;
+        document.getElementById("list"+currentProgram).id = "list"+fileName;
+        document.getElementById(currentProgram+"Close").id = fileName+"Close";
+        document.getElementById(currentProgram+"Text").id = fileName+"Text";
+        renamePassoff(fileName);
+        request.execute();
+    })
+  }
 }
 
 
-  function saveFile(fileName) {
-    console.log(fileName);
+  function saveFile(fileName, value) {
 
     var requester = gapi.client.request({
         'path': '/drive/v2/files',
@@ -151,7 +152,7 @@ function renameFile() {
     });
     requester.execute(function(res) {
       if(res.items.length > 0 ){
-        var val = confirm("Do you want to overwrite the file: "+fileName+ " with that you currently have?");
+        var val = true;
         if(val) {
           const boundary = '-------314159265358979323846';
           const delimiter = "\r\n--" + boundary + "\r\n";
@@ -184,7 +185,13 @@ function renameFile() {
                 },
                 'body': multipartRequestBody
             });
-            request.execute();
+            request.execute(function(res){
+            	if(!value) {
+            		var elem = document.getElementById(fileName);
+					elem.remove();
+            		openNextProgram();
+            	}
+            });
         }
       } else {
         const boundary = '-------314159265358979323846';
@@ -220,8 +227,13 @@ function renameFile() {
           });
           request.execute(function(resp) {
             console.log(resp);
-            var listhtmlCode = "<li id='list"+resp.title+"' onclick=loadFile('"+resp.id+"')>"+resp.title+"</li>";
+            var listhtmlCode = "<a href='#' id='list"+resp.title+"' onclick=loadFile('"+resp.id+"') style='padding-left: 50px'>"+resp.title+"</a>";
             $('#programs').append(listhtmlCode);
+            if(!value) {
+        		var elem = document.getElementById(fileName);
+				elem.remove();
+        		openNextProgram();
+            }
           });
       }
     });
@@ -233,12 +245,12 @@ function renameFile() {
     var request = gapi.client.request({
         'path': '/drive/v2/files',
         'method': 'GET',
-        'params': {q:  "'"+id+"' in parents"}
+        'params': {q:  "'"+id+"' in parents and mimeType != 'application/vnd.google-apps.folder'"}
     });
       request.execute(function(resp) {
         console.log(resp);
         for(var i = 0; i < resp.items.length; i++) {
-          var listhtmlCode = "<li id='list"+resp.items[i].title+"' onclick=loadFile('"+resp.items[i].id+"')>"+resp.items[i].title+"</li>"
+          var listhtmlCode = "<a href='#' id='list"+resp.items[i].title+"' onclick=loadFile('"+resp.items[i].id+"') style='padding-left: 50px'>"+resp.items[i].title+"</a>"
           $('#programs').append(listhtmlCode)
           if(i == 0) {
             titleValue = resp.items[i].title;
@@ -273,7 +285,7 @@ function renameFile() {
           data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
           success: function(output) {
             
-            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p class="tableCol">'+resp.title+'</p><i onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
              $('#programsList').append(htmlCode);
              listOfPrograms[resp.title] = "";
              switchProgram(resp.title);
