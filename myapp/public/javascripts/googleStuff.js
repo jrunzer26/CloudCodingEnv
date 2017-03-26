@@ -1,7 +1,12 @@
 var GoogleAuth;
 var ENGRFolderId;
+var autoSaveGo = false;
+var autoSaveFolderId;
 var existingFolders = [];
+var autoSaveFiles = {};
 var editor;
+
+
   var SCOPE = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.photos.readonly https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.apps.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata https://www.googleapis.com/auth/drive.readonly';
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
@@ -142,21 +147,123 @@ function renameFile() {
   }
 }
 
+//setInterval(function () {autoSaveFeature();}, 120000);
+//setInterval(function() {console.log("HEY MAN");}, 1000);
+setTimeout(enableAuto, 120000);
+
+function enableAuto() {
+  if(!autoSaveGo) {
+      autoSaveGo = true;
+      console.log("in the go");
+      setTimeout(autoSaveFeature, 1000);
+  }
+}
+
+function autoSaveFeature() {
+	const boundary = '-------314159265358979323846';
+	const delimiter = "\r\n--" + boundary + "\r\n";
+	const close_delim = "\r\n--" + boundary + "--";
+	console.log("In the autoSave File");
+  for(var i = 0; i < Object.keys(listOfPrograms).length; i++) {
+      if(Object.keys(autoSaveFiles).includes(Object.keys(listOfPrograms)[i])) {
+        var base64;
+        if(Object.keys(listOfPrograms)[i] == currentProgram) {
+            base64 = btoa(editor.getValue());;
+        } else {
+            base64 = btoa(Object.values(listOfPrograms)[i]);
+        }
+        var title = Object.keys(listOfPrograms)[i];
+        var titleID = autoSaveFiles[Object.keys(listOfPrograms)[i]];
+        console.log("the file name is: "+ Object.keys(listOfPrograms)[i]+ " the id is: "+autoSaveFiles[Object.keys(listOfPrograms)[i]]);
+        console.log("the folder id is: "+ autoSaveFolderId);
+         var fileMetadata = {
+          'title' : title,
+          'mimeType' : 'text/plain',
+          'parents': [{"id": autoSaveFolderId}]
+          };
+
+          console.log(base64);
+          var multipartRequestBody =
+            delimiter +
+            'Content-Type: application/json\r\n\r\n' +
+            JSON.stringify(fileMetadata) +
+            delimiter +
+            'Content-Type: ' + "text/plain" + '\r\n' +
+            'Content-Transfer-Encoding: base64\r\n' +
+            '\r\n' +
+            base64 +
+            close_delim;
+
+            var request = gapi.client.request({
+                'path': '/upload/drive/v2/files/'+titleID,
+                'method': 'PUT',
+                'params' : {'uploadType': 'multipart'},
+                'headers': {
+                  'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+                },
+                'body': multipartRequestBody
+            });
+            request.execute();
+
+      } else {
+        var base64;
+        if(Object.keys(listOfPrograms)[i] == currentProgram) {
+            base64 = btoa(editor.getValue());
+        } else {
+            base64 = btoa(Object.values(listOfPrograms)[i]);
+        }
+        var fileMetadata = {
+        'title' : Object.keys(listOfPrograms)[i],
+        'mimeType' : 'text/plain',
+        'parents': [{"id": autoSaveFolderId}]
+        };
+
+        var multipartRequestBody =
+          delimiter +
+          'Content-Type: application/json\r\n\r\n' +
+          JSON.stringify(fileMetadata) +
+          delimiter +
+          'Content-Type: ' + "text/plain" + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          '\r\n' +
+          base64 +
+          close_delim;
+
+          var request = gapi.client.request({
+              'path': '/upload/drive/v2/files',
+              'method': 'POST',
+              'params' : {'uploadType': 'multipart'},
+              'headers': {
+                'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
+              },
+              'body': multipartRequestBody
+          });
+          request.execute(function(ress) {
+          	console.log(ress);
+          	autoSaveFiles[ress.title] = ress.id;
+          	console.log(autoSaveFiles)
+          });
+      }
+  }
+  console.log("setting timeout");
+  setTimeout(autoSaveFeature, 120000);
+}
 
   function saveFile(fileName, value) {
-
+  	const boundary = '-------314159265358979323846';
+	const delimiter = "\r\n--" + boundary + "\r\n";
+	const close_delim = "\r\n--" + boundary + "--";
     var requester = gapi.client.request({
         'path': '/drive/v2/files',
         'method': 'GET',
-        'params': {q:  "title = '"+fileName+"'"}
+        'params': {q:  "title = '"+fileName+"' and '"+ENGRFolderId+"' in parents"}
     });
     requester.execute(function(res) {
+    	console.log(res.items);
       if(res.items.length > 0 ){
         var val = true;
         if(val) {
-          const boundary = '-------314159265358979323846';
-          const delimiter = "\r\n--" + boundary + "\r\n";
-          const close_delim = "\r\n--" + boundary + "--";
+
           console.log(ENGRFolderId);
           var fileMetadata = {
           'title' : fileName,
@@ -194,9 +301,6 @@ function renameFile() {
             });
         }
       } else {
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
         console.log(ENGRFolderId);
         var fileMetadata = {
         'title' : fileName,
@@ -227,7 +331,7 @@ function renameFile() {
           });
           request.execute(function(resp) {
             console.log(resp);
-            var listhtmlCode = "<a href='#' id='list"+resp.title+"' onclick=loadFile('"+resp.id+"') style='padding-left: 50px'>"+resp.title+"</a>";
+            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile('+resp.id+' , '+resp.title+') style="padding-left: 50px">'+resp.title+'</a>';
             $('#programs').append(listhtmlCode);
             if(!value) {
         		var elem = document.getElementById(fileName);
@@ -250,7 +354,7 @@ function renameFile() {
       request.execute(function(resp) {
         console.log(resp);
         for(var i = 0; i < resp.items.length; i++) {
-          var listhtmlCode = "<a href='#' id='list"+resp.items[i].title+"' onclick=loadFile('"+resp.items[i].id+"') style='padding-left: 50px'>"+resp.items[i].title+"</a>"
+          var listhtmlCode = '<a href="#" id="list'+resp.items[i].title+'" onclick="loadFile(\''+resp.items[i].id+ '\' , \''+resp.items[i].title+'\')" style="padding-left: 50px">'+resp.items[i].title+'</a>'
           $('#programs').append(listhtmlCode)
           if(i == 0) {
             titleValue = resp.items[i].title;
@@ -272,27 +376,96 @@ function renameFile() {
       })
   }
 
-  function loadFile(id) {
+  function readFileNames(id) {
+    var request = gapi.client.request({
+      'path': '/drive/v2/files',
+      'method': 'GET',
+      'params': {q:  "'"+id+"' in parents and mimeType != 'application/vnd.google-apps.folder'"}
+    });
+    request.execute(function(resp) {
+      for(var i = 0; i < resp.items.length; i++) {
+        autoSaveFiles[resp.items[i].title] = resp.items[i].id;
+        console.log("The file name is: "+ resp.items[i].title + " the id to go along with it is: "+ resp.items[i].id);
+      }
+    })
+  }
+
+  function loadFile(id, title) {
     var request = gapi.client.request({
         'path': '/drive/v2/files/'+id,
         'method': 'GET'
     });
     request.execute(function(resp) {
-      if(Object.keys(listOfPrograms).indexOf(resp.title) < 0) {
-          $.ajax({
-          type: 'GET',
-          url: '/getFile',
-          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
-          success: function(output) {
-            
-            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
-             $('#programsList').append(htmlCode);
-             listOfPrograms[resp.title] = "";
-             switchProgram(resp.title);
-             setEditorText(output);
-          }
-        });
-      } else {
+      	var requester = gapi.client.request({
+      		'path': '/drive/v2/files',
+      		'method': 'GET',
+      		'params': {q: "'"+autoSaveFolderId+"' in parents and title = '"+title+"'"}
+      	});
+      	if(Object.keys(listOfPrograms).indexOf(resp.title) < 0) {
+      	requester.execute(function(res) {
+      		if(res.items.length > 0) {
+      			if(res.items[0].modifiedDate > resp.modifiedDate) {
+	      			console.log("The autoSave file is newer then the saved file");
+	      				$(function() {
+							$("#dialog").dialog({
+								modal: true,
+								resizable: false,
+								buttons: {
+									"Yes": function() {
+										$.ajax({
+					      					type: 'GET',
+				          					url: '/getFile',
+				          					data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: res.items[0].downloadUrl},
+				          					success: function(output) {
+				          						var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+									             $('#programsList').append(htmlCode);
+									             listOfPrograms[resp.title] = "";
+									             switchProgram(resp.title);
+									             setEditorText(output);
+				          					}
+					      				});
+					      				$(this).dialog("close");
+									},
+									"No": function() {
+										$.ajax({
+								          type: 'GET',
+								          url: '/getFile',
+								          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
+								          success: function(output) {
+								            
+								            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+								             $('#programsList').append(htmlCode);
+								             listOfPrograms[resp.title] = "";
+								             switchProgram(resp.title);
+								             setEditorText(output);
+								          }
+								        });
+										$(this).dialog("close");
+									}, 
+									"Cancel": function() {
+										$(this).dialog("close");
+									}
+								}
+							});
+						});
+	      		} else {
+	      			    $.ajax({
+				          type: 'GET',
+				          url: '/getFile',
+				          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
+				          success: function(output) {
+				            
+				            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+				             $('#programsList').append(htmlCode);
+				             listOfPrograms[resp.title] = "";
+				             switchProgram(resp.title);
+				             setEditorText(output);
+				          }
+				        });
+	      		}
+      		}
+      	})
+	} else {
         switchProgram(resp.title);
       }
     })
@@ -310,12 +483,33 @@ function renameFile() {
     });
       request.execute(function(resp) {
         ENGRFolderId = resp.id;
+        var requester = gapi.client.request({
+          'path': '/drive/v2/files',
+          'method': 'POST',
+          'body': {'title': 'Auto Save', 'mimeType' : 'application/vnd.google-apps.folder', 'parents': [{"id": ENGRFolderId}]}
+        });
+        requester.execute(function(res) {
+          autoSaveFolderId = res.id;
+        })
       });
   }
 
+  function subFolderCreate() {
+    var requester = gapi.client.request({
+        'path': '/drive/v2/files',
+        'method': 'POST',
+        'body': {'title': 'Auto Save', 'mimeType' : 'application/vnd.google-apps.folder', 'parents': [{"id": ENGRFolderId}]}
+      });
+      requester.execute(function(res) {
+        autoSaveFolderId = res.id;
+        readFiles(ENGRFolderId);
+        readFileNames(autoSaveFolderId);
+      })
+  }
 
   function checkForFolder() {
     var fileExist = false;
+    var subFolder = false;
     var request = gapi.client.request({
             'path': '/drive/v3/files',
             'method': 'GET',
@@ -336,7 +530,31 @@ function renameFile() {
               folderCreate();
             } else {
               console.log("That folder already exists");
-              readFiles(ENGRFolderId);
-            }
+              var requester = gapi.client.request({
+                'path': '/drive/v3/files',
+                'method': 'GET',
+                'params': {q: "name = 'Auto Save'"}
+                });
+              requester.execute(function(res) { 
+                console.log(res);
+                if(res.files.length > 0) {
+                  for(var i =0; i < res.files.length; i++) {
+                      if(res.files[i].mimeType == "application/vnd.google-apps.folder") {
+                        subFolder = true;
+                        autoSaveFolderId = res.files[0].id;
+                        break;
+                      }
+                  }
+                }
+                if(!subFolder) {
+                  subFolderCreate();
+                } else {
+                  readFiles(ENGRFolderId);
+                  readFileNames(autoSaveFolderId);
+                }
+            });
+            
+
+          }
     });
-  }
+  } 
