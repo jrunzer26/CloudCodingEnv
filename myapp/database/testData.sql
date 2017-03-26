@@ -23,7 +23,7 @@ INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
 );
 
 INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
-    'two spirit green',
+    'Red',
     true,
     '1'
 );
@@ -49,4 +49,22 @@ INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
     '9',
     true,
     '2'
+);
+
+INSERT INTO Programs ("name", "data") VALUES (
+    'instructorProgram.cpp',
+    '// hello world
+    #include <iostream> 
+    int main() { 
+        std::cout << "Hello World!";
+    }'
+);
+
+INSERT INTO Programs ("name", "data") VALUES (
+    'HelloStuart.cpp',
+    '// hello Stuart
+    #include <iostream> 
+    int main() { 
+        std::cout << "Hello Stuart!";
+    }'
 );

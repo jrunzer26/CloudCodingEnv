@@ -12,3 +12,6 @@ SELECT * FROM Answers;
 \! echo -------
 \! echo QuizResults
 SELECT * FROM QuizResults;
+\! echo -------
+\! echo Programs
+SELECT * FROM Programs;

@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS Quizzes CASCADE;
 DROP TABLE IF EXISTS Questions CASCADE;
 DROP TABLE IF EXISTS Answers CASCADE;
 DROP TABLE IF EXISTS QuizResults CASCADE;
+DROP TABLE IF EXISTS Programs CASCADE;
 
 CREATE TABLE Users (
     "email" text PRIMARY KEY,
@@ -21,20 +22,25 @@ CREATE TABLE Quizzes (
 CREATE TABLE Questions (
     "id" serial PRIMARY KEY,
     "question" text NOT NULL,
-    "quizID" integer references Quizzes ("id")
+    "quizID" integer references Quizzes ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE Answers (
     "id" serial PRIMARY KEY,
     "value" text NOT NULL,
     "correctAnswer" boolean NOT NULL,
-    "questionID" integer references Questions ("id")
+    "questionID" integer references Questions ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE QuizResults (
     "id" serial PRIMARY KEY,
-    "quizID" integer references Quizzes("id"),
+    "quizID" integer references Quizzes("id") ON DELETE CASCADE,
     "dateCompleted" timestamp default current_timestamp,
     "email" text references Users("email"),
     "mark" decimal
+);
+
+CREATE TABLE Programs (
+    "name" text PRIMARY KEY,
+    "data" text
 );
