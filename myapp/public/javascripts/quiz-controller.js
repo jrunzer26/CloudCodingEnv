@@ -6,6 +6,8 @@ $(document).ready(function() {
     var quizID = window.location.href.substring(window.location.href.indexOf('=') + 1);
     GLOBAL_QUIZ_ID = quizID;
     loadQuizQuestions(quizID);
+  } else if (window.location.href.includes("quiz-manager")) {
+    getQuizPostings2(true);
   } else {
     getQuizPostings();
   }
@@ -16,24 +18,29 @@ $(document).ready(function() {
 /**
  * Gets and loads the quizzes.
  */
-function getQuizPostings() {
+function getQuizPostings2(admin) {
   $.ajax({
     type: 'GET',
     url: '/quiz/quizListings',
     success: function(output) {
-      loadQuizDescriptions(output);
-      loadMarks();
+      loadQuizDescriptions(output, admin);
+      if (!admin)
+        loadMarks();
     }
   });
+}
+
+function getQuizPostings() {
+  getQuizPostings2(false);
 }
 
 /**
  * Disects the quiz data from the server.
  * @param {*} quizData the rows of quiz data
  */
-function loadQuizDescriptions(quizData) {
+function loadQuizDescriptions(quizData, admin) {
   for(var i = 0; i < quizData.length; i++) {
-    appendQuizInfo(quizData[i]);
+    appendQuizInfo(quizData[i], admin);
   }
 }
 
@@ -41,11 +48,14 @@ function loadQuizDescriptions(quizData) {
  * Formats and inserts a quiz into the #quizFeed
  * @param {*} data a quiz
  */
-function appendQuizInfo(data) {
-  $('#quizFeed').append(
-    '<div id="'+data.id+'" class="quiz">'+
-      '<h3><a href="/quiz?quizid='+data.id+'">'+data.name+'</a></h3>'
-  );
+function appendQuizInfo(data, admin) {
+  var theHtml = '<div id="'+data.id+'" class="quiz">'+
+      '<h3><a style="padding-right:16px;" href="/quiz?quizid='+data.id+'">'+data.name+'</a>';
+      if (admin) {
+        theHtml += '<button class="btn btn-xs btn-danger" onclick="deleteQuiz('+data.id+')"><i class="fa fa-times" aria-hidden="true"></i></button>'
+      }
+      theHtml += '</h3>';
+  $('#quizFeed').append(theHtml);
 }
 
 /**
@@ -229,5 +239,30 @@ function retry() {
 
 function navQuiz() {
   window.location = "/quiz";
+}
+
+/**
+ * Deletes a quiz from the server.
+ * @param {*} id 
+ */
+function deleteQuiz(id) {
+  if (confirm('Are you sure you want to delete quiz: '+id+'?')) {
+    var data = {
+      userID: "jason.runzer@uoit.net",
+      quizId: id,
+    };
+    $.ajax({
+      type: 'POST',
+      data: JSON.stringify(data),
+      contentType: 'application/json',
+      url: '/quiz-manager/deleteQuiz',
+      success: function(output) {
+        console.log('output: ' + output);
+        alert(output.success);
+        location.reload();
+      }
+    });
+  }
+ 
 }
 

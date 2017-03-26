@@ -10,6 +10,7 @@ var login = require('./routes/login');
 var quiz = require('./routes/quiz');
 var admin = require('./routes/admin');
 var quiz_gen = require('./routes/quiz-gen');
+var quiz_manager = require('./routes/quiz-manager');
 var assignment_gen = require('./routes/assignment-gen');
 var assignment_assessment = require('./routes/assignment-assessment');
 
@@ -32,6 +33,7 @@ app.use('/quiz', quiz);
 app.use('/admin', admin);
 app.use('/assignment-gen', assignment_gen);
 app.use('/quiz-gen', quiz_gen);
+app.use('/quiz-manager', quiz_manager);
 app.use('/assignment-assessment', assignment_assessment);
 
 

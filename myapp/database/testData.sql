@@ -23,7 +23,7 @@ INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
 );
 
 INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
-    'two spirit green',
+    'Red',
     true,
     '1'
 );
