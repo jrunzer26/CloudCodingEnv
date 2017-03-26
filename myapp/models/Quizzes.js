@@ -170,3 +170,17 @@ exports.addQuiz = function(quiz, email, callback) {
     console.log(err);
   });
 }
+
+/**
+ * Deletes a quiz.
+ */
+exports.deleteQuiz = function(quizID, callback) {
+  db.none('DELETE FROM Quizzes WHERE "id" = $1;', [quizID])
+  .then(function() {
+    callback("Deleted quiz " + quizID);
+  })
+  .catch(function(err) {
+    console.log(err);
+    callback("Error deleting quiz " + quizID);
+  });
+}
