@@ -25,3 +25,11 @@ function tester() {
 		document.getElementById("programs").style.display = "none";
 	}	
 }
+
+function showInstrPrograms() {
+	if(document.getElementById("instrPrograms").style.display == "none") {
+		document.getElementById("instrPrograms").style.display = "inline";
+	} else {
+		document.getElementById("instrPrograms").style.display = "none";
+	}
+}

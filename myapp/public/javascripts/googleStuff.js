@@ -331,7 +331,7 @@ function autoSaveFeature() {
           });
           request.execute(function(resp) {
             console.log(resp);
-            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile('+resp.id+' , '+resp.title+') style="padding-left: 50px">'+resp.title+'</a>';
+            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile(\''+resp.id+'\' , \''+resp.title+'\') style="padding-left: 50px">'+resp.title+'</a>';
             $('#programs').append(listhtmlCode);
             if(!value) {
         		var elem = document.getElementById(fileName);

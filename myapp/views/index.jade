@@ -20,6 +20,7 @@ block extraScripts
 block content
   #backgroundContainer
     #utilityBar
+      button#publish.btn.btn-primary(type='button', onclick='publishCode()')
       button#save.btn.btn-primary(type='button', onclick='askSave(true)')
           i.fa.fa-floppy-o(aria-hidden='true')
       button#new.btn.btn-primary(type='button', onclick='newFile()')
@@ -52,6 +53,9 @@ block content
     #dialogClose(title='Save Program')
       p
         | Do you wish to save this file?
+    #dialogPublish(title='Publish Code')
+      p
+        | Do you want to publish this code for the class to see?
 
       
       
