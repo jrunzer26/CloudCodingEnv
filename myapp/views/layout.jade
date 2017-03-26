@@ -22,7 +22,9 @@ html
         img(src="images/uoit.jpg")
       #titleDiv
         h1 #{title}
-        block headerContent
+      headerContent
+        button.btn.btn-primary#sign-in-or-out-button(style='margin-left: 25px') Sign In/Authorize
+        button.btn.btn-primary#revoke-access-button(style='display: none; margin-left: 25px') Revoke access
       #mySidenav.sidenav
         #sideNavHeader
           .centered

@@ -5,6 +5,8 @@ var autoSaveFolderId;
 var existingFolders = [];
 var autoSaveFiles = {};
 var editor;
+
+
   var SCOPE = 'https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.photos.readonly https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.apps.readonly https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata https://www.googleapis.com/auth/drive.readonly';
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
@@ -117,57 +119,59 @@ function deleteFile() {
 
 function renameFile() {
   var fileName = window.prompt("Enter file name: ", "testFile");
-  var requester = gapi.client.request({
-      'path': '/drive/v2/files',
-      'method': 'GET',
-      'params': {q:  "title = '"+currentProgram+"'"}
-  });
-  requester.execute(function(res){
-      var id = res.items[0].id;
-      var request = gapi.client.request({
-          'path': '/drive/v2/files/'+id,
-          'method': 'PATCH',
-          'body': {"title": fileName}
-      });
-      document.getElementById(currentProgram).setAttribute( "onclick", "switchProgram('"+fileName+"');" );
-      document.getElementById(currentProgram+"Close").setAttribute( "onclick", "closeProgram('"+fileName+"');" );
-      document.getElementById(currentProgram+"Text").innerHTML = fileName;
-      document.getElementById(currentProgram).id = fileName;
-      document.getElementById("list"+currentProgram).setAttribute("onclick", "loadFile('"+id+"');")
-      document.getElementById("list"+currentProgram).innerHTML = fileName;
-      document.getElementById("list"+currentProgram).id = "list"+fileName;
-      document.getElementById(currentProgram+"Close").id = fileName+"Close";
-      document.getElementById(currentProgram+"Text").id = fileName+"Text";
-      renamePassoff(fileName);
-      request.execute();
-  })
+  if(fileName !== null) {
+    var requester = gapi.client.request({
+        'path': '/drive/v2/files',
+        'method': 'GET',
+        'params': {q:  "title = '"+currentProgram+"'"}
+    });
+    requester.execute(function(res){
+        var id = res.items[0].id;
+        var request = gapi.client.request({
+            'path': '/drive/v2/files/'+id,
+            'method': 'PATCH',
+            'body': {"title": fileName}
+        });
+        document.getElementById(currentProgram).setAttribute( "onclick", "switchProgram('"+fileName+"');" );
+        document.getElementById(currentProgram+"Close").setAttribute( "onclick", "closeProgram('"+fileName+"');" );
+        document.getElementById(currentProgram+"Text").innerHTML = fileName;
+        document.getElementById(currentProgram).id = fileName;
+        document.getElementById("list"+currentProgram).setAttribute("onclick", "loadFile('"+id+"');")
+        document.getElementById("list"+currentProgram).innerHTML = fileName;
+        document.getElementById("list"+currentProgram).id = "list"+fileName;
+        document.getElementById(currentProgram+"Close").id = fileName+"Close";
+        document.getElementById(currentProgram+"Text").id = fileName+"Text";
+        renamePassoff(fileName);
+        request.execute();
+    })
+  }
 }
 
 //setInterval(function () {autoSaveFeature();}, 120000);
 //setInterval(function() {console.log("HEY MAN");}, 1000);
-setTimeout(enableAuto, 1000);
+setTimeout(enableAuto, 120000);
 
 function enableAuto() {
   if(!autoSaveGo) {
       autoSaveGo = true;
       console.log("in the go");
-      setTimeout(autoSaveFeature, 3000);
+      setTimeout(autoSaveFeature, 1000);
   }
 }
 
 function autoSaveFeature() {
-  const boundary = '-------314159265358979323846';
-  const delimiter = "\r\n--" + boundary + "\r\n";
-  const close_delim = "\r\n--" + boundary + "--";
+	const boundary = '-------314159265358979323846';
+	const delimiter = "\r\n--" + boundary + "\r\n";
+	const close_delim = "\r\n--" + boundary + "--";
+	console.log("In the autoSave File");
   for(var i = 0; i < Object.keys(listOfPrograms).length; i++) {
       if(Object.keys(autoSaveFiles).includes(Object.keys(listOfPrograms)[i])) {
         var base64;
         if(Object.keys(listOfPrograms)[i] == currentProgram) {
-            base64 = editor.getValue();
+            base64 = btoa(editor.getValue());;
         } else {
-            base64 = Object.values(listOfPrograms)[i];
+            base64 = btoa(Object.values(listOfPrograms)[i]);
         }
-        console.log(base64);
         var title = Object.keys(listOfPrograms)[i];
         var titleID = autoSaveFiles[Object.keys(listOfPrograms)[i]];
         console.log("the file name is: "+ Object.keys(listOfPrograms)[i]+ " the id is: "+autoSaveFiles[Object.keys(listOfPrograms)[i]]);
@@ -178,6 +182,7 @@ function autoSaveFeature() {
           'parents': [{"id": autoSaveFolderId}]
           };
 
+          console.log(base64);
           var multipartRequestBody =
             delimiter +
             'Content-Type: application/json\r\n\r\n' +
@@ -186,8 +191,9 @@ function autoSaveFeature() {
             'Content-Type: ' + "text/plain" + '\r\n' +
             'Content-Transfer-Encoding: base64\r\n' +
             '\r\n' +
-            base64Data +
+            base64 +
             close_delim;
+
             var request = gapi.client.request({
                 'path': '/upload/drive/v2/files/'+titleID,
                 'method': 'PUT',
@@ -202,18 +208,16 @@ function autoSaveFeature() {
       } else {
         var base64;
         if(Object.keys(listOfPrograms)[i] == currentProgram) {
-            base64 = editor.getValue();
+            base64 = btoa(editor.getValue());
         } else {
-            base64 = Object.values(listOfPrograms)[i];
+            base64 = btoa(Object.values(listOfPrograms)[i]);
         }
-        console.log(base64);
         var fileMetadata = {
         'title' : Object.keys(listOfPrograms)[i],
         'mimeType' : 'text/plain',
         'parents': [{"id": autoSaveFolderId}]
         };
 
-        var base64Data = btoa(getEditorText());
         var multipartRequestBody =
           delimiter +
           'Content-Type: application/json\r\n\r\n' +
@@ -222,7 +226,7 @@ function autoSaveFeature() {
           'Content-Type: ' + "text/plain" + '\r\n' +
           'Content-Transfer-Encoding: base64\r\n' +
           '\r\n' +
-          base64Data +
+          base64 +
           close_delim;
 
           var request = gapi.client.request({
@@ -234,28 +238,32 @@ function autoSaveFeature() {
               },
               'body': multipartRequestBody
           });
-          request.execute();
+          request.execute(function(ress) {
+          	console.log(ress);
+          	autoSaveFiles[ress.title] = ress.id;
+          	console.log(autoSaveFiles)
+          });
       }
   }
   console.log("setting timeout");
-  //setTimeout(autoSaveFiles, 10000);
+  setTimeout(autoSaveFeature, 120000);
 }
 
-  function saveFile(fileName) {
-    console.log(fileName);
-
+  function saveFile(fileName, value) {
+  	const boundary = '-------314159265358979323846';
+	const delimiter = "\r\n--" + boundary + "\r\n";
+	const close_delim = "\r\n--" + boundary + "--";
     var requester = gapi.client.request({
         'path': '/drive/v2/files',
         'method': 'GET',
-        'params': {q:  "title = '"+fileName+"'"}
+        'params': {q:  "title = '"+fileName+"' and '"+ENGRFolderId+"' in parents"}
     });
     requester.execute(function(res) {
+    	console.log(res.items);
       if(res.items.length > 0 ){
-        var val = confirm("Do you want to overwrite the file: "+fileName+ " with that you currently have?");
+        var val = true;
         if(val) {
-          const boundary = '-------314159265358979323846';
-          const delimiter = "\r\n--" + boundary + "\r\n";
-          const close_delim = "\r\n--" + boundary + "--";
+
           console.log(ENGRFolderId);
           var fileMetadata = {
           'title' : fileName,
@@ -284,12 +292,15 @@ function autoSaveFeature() {
                 },
                 'body': multipartRequestBody
             });
-            request.execute();
+            request.execute(function(res){
+            	if(!value) {
+            		var elem = document.getElementById(fileName);
+					elem.remove();
+            		openNextProgram();
+            	}
+            });
         }
       } else {
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
         console.log(ENGRFolderId);
         var fileMetadata = {
         'title' : fileName,
@@ -320,8 +331,13 @@ function autoSaveFeature() {
           });
           request.execute(function(resp) {
             console.log(resp);
-            var listhtmlCode = "<li id='list"+resp.title+"' onclick=loadFile('"+resp.id+"')>"+resp.title+"</li>";
+            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile('+resp.id+' , '+resp.title+') style="padding-left: 50px">'+resp.title+'</a>';
             $('#programs').append(listhtmlCode);
+            if(!value) {
+        		var elem = document.getElementById(fileName);
+				elem.remove();
+        		openNextProgram();
+            }
           });
       }
     });
@@ -338,7 +354,7 @@ function autoSaveFeature() {
       request.execute(function(resp) {
         console.log(resp);
         for(var i = 0; i < resp.items.length; i++) {
-          var listhtmlCode = "<li id='list"+resp.items[i].title+"' onclick=loadFile('"+resp.items[i].id+"')>"+resp.items[i].title+"</li>"
+          var listhtmlCode = '<a href="#" id="list'+resp.items[i].title+'" onclick="loadFile(\''+resp.items[i].id+ '\' , \''+resp.items[i].title+'\')" style="padding-left: 50px">'+resp.items[i].title+'</a>'
           $('#programs').append(listhtmlCode)
           if(i == 0) {
             titleValue = resp.items[i].title;
@@ -374,27 +390,70 @@ function autoSaveFeature() {
     })
   }
 
-  function loadFile(id) {
+  function loadFile(id, title) {
     var request = gapi.client.request({
         'path': '/drive/v2/files/'+id,
         'method': 'GET'
     });
     request.execute(function(resp) {
-      if(Object.keys(listOfPrograms).indexOf(resp.title) < 0) {
-          $.ajax({
-          type: 'GET',
-          url: '/getFile',
-          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
-          success: function(output) {
-            
-            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p class="tableCol">'+resp.title+'</p><i onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
-             $('#programsList').append(htmlCode);
-             listOfPrograms[resp.title] = "";
-             switchProgram(resp.title);
-             setEditorText(output);
-          }
-        });
-      } else {
+      	var requester = gapi.client.request({
+      		'path': '/drive/v2/files',
+      		'method': 'GET',
+      		'params': {q: "'"+autoSaveFolderId+"' in parents and title = '"+title+"'"}
+      	});
+      	if(Object.keys(listOfPrograms).indexOf(resp.title) < 0) {
+      	requester.execute(function(res) {
+      		if(res.items.length > 0) {
+      			if(res.items[0].modifiedDate > resp.modifiedDate) {
+	      			console.log("The autoSave file is newer then the saved file");
+	      			var newProgram = confirm("Do you wish to load the auto saved file instead");
+	      			if(newProgram) {
+	      				$.ajax({
+	      					type: 'GET',
+          					url: '/getFile',
+          					data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: res.items[0].downloadUrl},
+          					success: function(output) {
+          						var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+					             $('#programsList').append(htmlCode);
+					             listOfPrograms[resp.title] = "";
+					             switchProgram(resp.title);
+					             setEditorText(output);
+          					}
+	      				});
+	      			} else {
+	      				 $.ajax({
+				          type: 'GET',
+				          url: '/getFile',
+				          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
+				          success: function(output) {
+				            
+				            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+				             $('#programsList').append(htmlCode);
+				             listOfPrograms[resp.title] = "";
+				             switchProgram(resp.title);
+				             setEditorText(output);
+				          }
+				        });
+	      			}
+	      		} else {
+	      			console.log("The save file is newer then the autoSaved");
+	      			    $.ajax({
+				          type: 'GET',
+				          url: '/getFile',
+				          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
+				          success: function(output) {
+				            
+				            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+				             $('#programsList').append(htmlCode);
+				             listOfPrograms[resp.title] = "";
+				             switchProgram(resp.title);
+				             setEditorText(output);
+				          }
+				        });
+	      		}
+      		}
+      	})
+	} else {
         switchProgram(resp.title);
       }
     })
