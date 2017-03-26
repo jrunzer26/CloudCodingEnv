@@ -14,7 +14,6 @@ $(document).ready(function() {
 		theme: "default"
 	});
 
-
 	$("#showText").click(function() {
 		var text = editor.getValue();
 		var fileName = "";
@@ -74,7 +73,6 @@ function signOut() {
 
 function closeProgram(id) {
 	askSave(false);
-	delete listOfPrograms[id];
 }
 
 function closeDeletedProgram(id) {
@@ -86,12 +84,32 @@ function closeDeletedProgram(id) {
 
 function askSave(val) {
 	// pops up to ask if the user would like to save their program.
-	var value = confirm("Do you want to save file: "+ currentProgram);
-	if(value == true) {
-		listOfPrograms[currentProgram] = getEditorText();
-		saveFile(currentProgram, val);
-	} 
-	console.log(value);
+	$("#dialogClose").dialog({
+		modal: true,
+		resizable: false,
+		buttons: {
+			"YES": function() {
+				listOfPrograms[currentProgram] = getEditorText();
+				if(!val) {
+					delete listOfPrograms[currentProgram];
+				}
+				saveFile(currentProgram, val);
+				$(this).dialog("close");
+			},
+			"NO": function() {
+				if(!val) {
+					delete listOfPrograms[currentProgram];
+					var elem = document.getElementById(currentProgram);
+					elem.remove();
+					openNextProgram();	
+				}
+				$(this).dialog("close");
+			},
+			"Cancel": function() {
+				$(this).dialog("close");
+			}
+		}
+	});
 }
 
 function newFile() {

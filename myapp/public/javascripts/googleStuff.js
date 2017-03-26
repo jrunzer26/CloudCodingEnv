@@ -406,37 +406,49 @@ function autoSaveFeature() {
       		if(res.items.length > 0) {
       			if(res.items[0].modifiedDate > resp.modifiedDate) {
 	      			console.log("The autoSave file is newer then the saved file");
-	      			var newProgram = confirm("Do you wish to load the auto saved file instead");
-	      			if(newProgram) {
-	      				$.ajax({
-	      					type: 'GET',
-          					url: '/getFile',
-          					data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: res.items[0].downloadUrl},
-          					success: function(output) {
-          						var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
-					             $('#programsList').append(htmlCode);
-					             listOfPrograms[resp.title] = "";
-					             switchProgram(resp.title);
-					             setEditorText(output);
-          					}
-	      				});
-	      			} else {
-	      				 $.ajax({
-				          type: 'GET',
-				          url: '/getFile',
-				          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
-				          success: function(output) {
-				            
-				            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
-				             $('#programsList').append(htmlCode);
-				             listOfPrograms[resp.title] = "";
-				             switchProgram(resp.title);
-				             setEditorText(output);
-				          }
-				        });
-	      			}
+	      				$(function() {
+							$("#dialog").dialog({
+								modal: true,
+								resizable: false,
+								buttons: {
+									"Yes": function() {
+										$.ajax({
+					      					type: 'GET',
+				          					url: '/getFile',
+				          					data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: res.items[0].downloadUrl},
+				          					success: function(output) {
+				          						var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+									             $('#programsList').append(htmlCode);
+									             listOfPrograms[resp.title] = "";
+									             switchProgram(resp.title);
+									             setEditorText(output);
+				          					}
+					      				});
+					      				$(this).dialog("close");
+									},
+									"No": function() {
+										$.ajax({
+								          type: 'GET',
+								          url: '/getFile',
+								          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
+								          success: function(output) {
+								            
+								            var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
+								             $('#programsList').append(htmlCode);
+								             listOfPrograms[resp.title] = "";
+								             switchProgram(resp.title);
+								             setEditorText(output);
+								          }
+								        });
+										$(this).dialog("close");
+									}, 
+									"Cancel": function() {
+										$(this).dialog("close");
+									}
+								}
+							});
+						});
 	      		} else {
-	      			console.log("The save file is newer then the autoSaved");
 	      			    $.ajax({
 				          type: 'GET',
 				          url: '/getFile',
