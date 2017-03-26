@@ -6,6 +6,14 @@ var currentProgram;
 var listOfPrograms = {};
 
 $(document).ready(function() {
+	//################ PROGRAM SAMPLE ##########################
+	getProgram("HelloStuart.cpp");
+	deleteProgram("HelloStuart.cpp");
+	getProgramList();
+	saveProgram("HelloStuart2.cpp", "this is where the code goes");
+	getProgram("HelloStuart2.cpp");
+	//##########################################################
+
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
 		lineNumbers : true,

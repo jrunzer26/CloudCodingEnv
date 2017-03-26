@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS Quizzes CASCADE;
 DROP TABLE IF EXISTS Questions CASCADE;
 DROP TABLE IF EXISTS Answers CASCADE;
 DROP TABLE IF EXISTS QuizResults CASCADE;
+DROP TABLE IF EXISTS Programs CASCADE;
 
 CREATE TABLE Users (
     "email" text PRIMARY KEY,
@@ -37,4 +38,9 @@ CREATE TABLE QuizResults (
     "dateCompleted" timestamp default current_timestamp,
     "email" text references Users("email"),
     "mark" decimal
+);
+
+CREATE TABLE Programs (
+    "name" text PRIMARY KEY,
+    "data" text
 );
