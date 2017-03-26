@@ -50,3 +50,21 @@ INSERT INTO Answers ("value", "correctAnswer", "questionID") VALUES (
     true,
     '2'
 );
+
+INSERT INTO Programs ("name", "data") VALUES (
+    'instructorProgram.cpp',
+    '// hello world
+    #include <iostream> 
+    int main() { 
+        std::cout << "Hello World!";
+    }'
+);
+
+INSERT INTO Programs ("name", "data") VALUES (
+    'HelloStuart.cpp',
+    '// hello Stuart
+    #include <iostream> 
+    int main() { 
+        std::cout << "Hello Stuart!";
+    }'
+);
