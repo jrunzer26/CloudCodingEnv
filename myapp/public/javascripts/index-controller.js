@@ -17,13 +17,21 @@ $(document).ready(function() {
 
 	$("#showText").click(function() {
 		var text = editor.getValue();
+		var fileName = "";
 		var inputParams = $('#inputParams').val().split(",");
 		var cinParams = $('#cinParams').val();
-		console.log(inputParams);
+		var textValue = sessionStorage.getItem("email").replace(".","").split("@");
+		if(currentProgram.lastIndexOf(".") > 0) {
+			var compileName = currentProgram.slice(0, currentProgram.lastIndexOf(".")) + ".c";
+			fileName = textValue[0].concat("_", compileName);
+		} else {
+			var compileName = currentProgram + ".c";
+			fileName = textValue[0].concat("_", compileName);
+		}	
 		$.ajax({
 			type: 'GET',
 			url: '/code',
-			data: {codeValue: text, inputList: inputParams, cin: cinParams},
+			data: {codeValue: text, inputList: inputParams, cin: cinParams, fileName: fileName},
 			success: function(output) {
 				$('#outputOfCode').val(output);
 			}
@@ -65,43 +73,42 @@ function signOut() {
 
 
 function closeProgram(id) {
-	askSave();
+	askSave(false);
 	delete listOfPrograms[id];
-	var elem = document.getElementById(id);
-	elem.remove();
-	openNextProgram();
 }
 
 function closeDeletedProgram(id) {
 	delete listOfPrograms[id];
 	var elem = document.getElementById(id);
 	elem.remove();
-	openNextProgram();
-	
+	openNextProgram();	
 }
 
-function askSave() {
+function askSave(val) {
 	// pops up to ask if the user would like to save their program.
 	var value = confirm("Do you want to save file: "+ currentProgram);
 	if(value == true) {
-		saveFile(currentProgram);
+		listOfPrograms[currentProgram] = getEditorText();
+		saveFile(currentProgram, val);
 	} 
 	console.log(value);
 }
 
 function newFile() {
 	var fileName = window.prompt("Enter file name: ", "testFile");
-	if(Object.keys(listOfPrograms).indexOf(fileName) > -1) {
-		var value = confirm("That file already exists! Do you wish to overwrite that file with an empty file?");
-		if(value) {
-			listOfPrograms[fileName] = "";
-			editor.setValue("");
+	if(fileName !== null) {
+		if(Object.keys(listOfPrograms).indexOf(fileName) > -1) {
+			var value = confirm("That file already exists! Do you wish to overwrite that file with an empty file?");
+			if(value) {
+				listOfPrograms[fileName] = "";
+				editor.setValue("");
+			}
+		} else {
+			var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p id="'+fileName+'Text" class="tableCol">'+fileName+'</p><i id="'+fileName+'Close" onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
+	    	$('#programsList').append(htmlCode);
+	    	listOfPrograms[fileName] = "";
+	    	switchProgram(fileName);
 		}
-	} else {
-		var htmlCode = '<div id="'+fileName+'" onclick="switchProgram(\''+fileName+'\')" class="program tableCol"><p class="tableCol">'+fileName+'</p><i onclick="closeProgram(\''+fileName+'\')" class="fa fa-times tabelCol"></i></div>';
-    	$('#programsList').append(htmlCode);
-    	listOfPrograms[fileName] = "";
-    	switchProgram(fileName);
 	}
    // listOfPrograms[fileName] = getEditorText();
 
@@ -133,6 +140,7 @@ function renamePassoff(id) {
 }
 
 function switchProgram(id) {
+
 	if(Object.keys(listOfPrograms).indexOf(id) > -1) {
 			if((currentProgram != "") || (currentProgram != undefined)) {
 			if(currentProgram != undefined) {
@@ -143,6 +151,7 @@ function switchProgram(id) {
 		selectProgram(id);
 		currentProgram = id;
 		//console.log("switch: " + id);
+	
 	} else {
 	}
 }

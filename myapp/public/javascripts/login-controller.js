@@ -68,10 +68,12 @@ var editor;
 
   function setSigninStatus(isSignedIn) {
     var user = GoogleAuth.currentUser.get();
+    console.log(user)
     var isAuthorized = user.hasGrantedScopes(SCOPE);
     if (isAuthorized) {
       //$('#gSignInWrapper').css('display', 'none');
-                $.ajax({
+      sessionStorage.setItem("email", GoogleAuth.currentUser.get().getBasicProfile().getEmail());
+       $.ajax({
         type: 'GET',
         url: '/',
         success: function(output) {
