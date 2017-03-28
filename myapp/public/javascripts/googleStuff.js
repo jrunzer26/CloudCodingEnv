@@ -60,6 +60,8 @@ var editor;
         type: 'GET',
         url: '/',
         success: function(output) {
+          sessionStorage.setItem("token", "");
+          sessionStorage.setItem("email", "");
           window.location.href='/';
         }
       })

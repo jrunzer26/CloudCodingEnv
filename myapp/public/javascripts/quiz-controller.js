@@ -9,6 +9,7 @@ $(document).ready(function() {
   } else if (window.location.href.includes("quiz-manager")) {
     getQuizPostings2(true);
   } else {
+    history.pushState({}, '/quiz?param1='+sessionStorage.getItem("token"), '/quiz');
     getQuizPostings();
   }
 });

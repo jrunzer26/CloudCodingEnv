@@ -30,13 +30,13 @@ html
           .centered
             #menuIconOpen
               i.fa.fa-bars.fa-lg(onclick="closeNav()")
-        a(href="/main") Home
+        a(href="#" onclick="homePage()") Home
         a(href="#" onclick="tester()") Programs
         #programs(style='display: none')
-        a(href="/quiz") Quiz
+        a(href="#" onclick="quizPage()") Quiz
         a(href="#") Instructor Programs
         // need to add this in when the user is an admin
-        a(href="/admin") Administration
+        a(href="#" onclick="adminPage()") Administration
     block content
     footer(class="footer")
       h4 UOIT

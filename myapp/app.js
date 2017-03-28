@@ -22,16 +22,15 @@ var app = express();
 
 
 app.get('/main', checkUser);
-app.get('/quiz', function(req,res,next) {
-	userLoggedIn = true;
-	next()
-})
+app.get('/quiz', checkUserSideRoutes);
+app.get('/quiz-manager', checkUserSideRoutes)
+app.get('/quiz-gen', checkUserSideRoutes);
+app.get('/admin', checkUserSideRoutes);
 
 
-
-function checkUser(req, res,next) {
+function checkUserSideRoutes(req, res,next) {
+	var token = req.param("param1");
 	if(!userLoggedIn) {
-		var token = req.param("param1");
 		try {
 	  		client.verifyIdToken(
 	  			token,
@@ -40,6 +39,7 @@ function checkUser(req, res,next) {
 	  				try{
 	  					var payload = login.getPayload();
 	  					var userid = payload['sub']
+	  					userLoggedIn = true;
 	  					next()
 	  				} catch(err) {
 	  					console.log("REDIRECTED");
@@ -52,10 +52,34 @@ function checkUser(req, res,next) {
 	  		res.redirect('/')
 	  	}
 	} else {
-		console.log("skip the login");
-		userLoggedIn = false;
 		next()
 	}
+}
+
+
+
+function checkUser(req, res,next) {
+	var token = req.param("param1");
+	userLoggedIn = false;
+	try {
+  		client.verifyIdToken(
+  			token,
+  			"814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com",
+  			function(e, login) {
+  				try{
+  					var payload = login.getPayload();
+  					var userid = payload['sub']
+  					next()
+  				} catch(err) {
+  					console.log("REDIRECTED");
+  					res.redirect('/')
+  				}
+  			}
+  		)
+  	} catch(e) {
+  		console.log("REDIRECTING");
+  		res.redirect('/')
+  	}
 }
 
 
