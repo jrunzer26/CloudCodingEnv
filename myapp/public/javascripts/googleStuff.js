@@ -461,10 +461,7 @@ function autoSaveFeature() {
 				             listOfPrograms[resp.title] = "";
 				             switchProgram(resp.title);
 				             setEditorText(output);
-				          },
-                  error: function(output) {
-                    console.log(output);
-                  }
+				          }
 				        });
 	      		}
       		}
