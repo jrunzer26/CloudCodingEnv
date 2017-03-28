@@ -391,6 +391,7 @@ function autoSaveFeature() {
   }
 
   function loadFile(id, title) {
+    console.log(title);
     var request = gapi.client.request({
         'path': '/drive/v2/files/'+id,
         'method': 'GET'
@@ -460,7 +461,10 @@ function autoSaveFeature() {
 				             listOfPrograms[resp.title] = "";
 				             switchProgram(resp.title);
 				             setEditorText(output);
-				          }
+				          },
+                  error: function(output) {
+                    console.log(output);
+                  }
 				        });
 	      		}
       		}

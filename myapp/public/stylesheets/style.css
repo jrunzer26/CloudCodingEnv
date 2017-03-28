@@ -246,8 +246,9 @@ a {
   margin-bottom: 30px;
 }
 
-#save, #new, #delete, #rename {
+#save, #new, #delete, #rename, #fullScreen {
   margin-left: 10px;
+  margin-bottom: 8px;
 }
 
 #sign-in-or-out-button, #revoke-access-button {

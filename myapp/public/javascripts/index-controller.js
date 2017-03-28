@@ -4,6 +4,7 @@ var existingFolders = [];
 var editor;
 var currentProgram;
 var listOfPrograms = {};
+var isFullscreen = false;
 
 $(document).ready(function() {
 	//################ PROGRAM SAMPLE ##########################
@@ -13,6 +14,8 @@ $(document).ready(function() {
 	saveProgram("HelloStuart2.cpp", "this is where the code goes");
 	getProgram("HelloStuart2.cpp");
 	//##########################################################
+$('#dialog').hide();
+$('#dialogClose').hide();
 
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
@@ -191,4 +194,23 @@ function selectProgram(id) {
 	//console.log('select program');
 	$('#' + id).addClass("selectedProgram");
 	quickLoadFile(id);
+}
+
+
+function fullScreen() {
+	if (isFullscreen)
+		removeFullScreen();
+	else {
+		isFullscreen = true;
+		$('.header').hide();
+		$('.footer').hide();
+		$('#menu').prependTo('#utilityBar');
+	}
+}
+
+function removeFullScreen() {
+	isFullscreen = false;
+		$('.header').show();
+		$('.footer').show();
+		$('#menu').prependTo('.header');
 }
