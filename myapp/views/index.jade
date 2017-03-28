@@ -35,14 +35,14 @@ block content
         textarea(class="codemirror-textarea" id="testView")
       .half#inputContainers
         #inputSection.split
-          p Compile Time Arguments
+          p.bold Compile Time Arguments
           textarea(rows="1" cols="50" id="inputParams")
-          p Input
+          p.bold Input
           textarea(rows= "5" cols="30" id="cinParams")
           br
-          button.btn.floatRight(id="showText") Run
+          button.btn.btn-primary.floatRight(id="showText") Run
         #outputSection.split
-          p Computer Output
+          p.bold Computer Output
           textarea(rows="4" cols="50" id="outputOfCode")
     #dialog(title='Newest File')
       p
