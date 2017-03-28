@@ -37,7 +37,7 @@ $(document).ready(function() {
 		}	
 		$.ajax({
 			type: 'GET',
-			url: '/code',
+			url: '/main/code',
 			data: {codeValue: text, inputList: inputParams, cin: cinParams, fileName: fileName},
 			success: function(output) {
 				$('#outputOfCode').val(output);
@@ -58,7 +58,7 @@ function getEditorText() {
 function testFunction() {
 	$.ajax({
 		type: 'GET',
-		url: '/auth',
+		url: '/main/auth',
 		success: function(output) {
 			console.log(output);
 		}

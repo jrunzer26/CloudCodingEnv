@@ -6,6 +6,8 @@ var exec = require('child_process').exec;
 var readline = require('readline');
 var google = require('googleapis');
 var GoogleAuth = require('google-auth-library');
+var auth = new GoogleAuth;
+var client = new auth.OAuth2("814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com", '', '');
 var rp = require('request-promise');
 
 var auth = new GoogleAuth;
@@ -18,8 +20,16 @@ var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'ENGR 1200' });
+	console.log("Should be rendering MAN");
+	console.log("The value is: "+ req.url);
+	var link = req.url.substring(0, req.url.indexOf("?"));
+  	res.render('index', { title: 'ENGR 1200' });
+  	//res.render('index', {title: 'ENGR 1200'});
 });
+
+router.get('/application', function(req,res,next) {
+	console.log("SUP");
+})
 
 router.get('/code', function(req,res,next) {
 	var array = req.query.inputList;

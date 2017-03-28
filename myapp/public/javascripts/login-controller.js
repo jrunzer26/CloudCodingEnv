@@ -46,10 +46,6 @@ var editor;
   }
 
 
-  function tester() {
-    console.log(JSON.stringify(sessionStorage.getItem('auth')));
-  }
-
   function handleAuthClick() {
     if (GoogleAuth.isSignedIn.get()) {
       // User is authorized and has clicked 'Sign out' button.
@@ -68,147 +64,32 @@ var editor;
 
   function setSigninStatus(isSignedIn) {
     var user = GoogleAuth.currentUser.get();
-    console.log(user)
     var isAuthorized = user.hasGrantedScopes(SCOPE);
     if (isAuthorized) {
       //$('#gSignInWrapper').css('display', 'none');
-      sessionStorage.setItem("email", GoogleAuth.currentUser.get().getBasicProfile().getEmail());
-       $.ajax({
-        type: 'GET',
-        url: '/',
-        success: function(output) {
-          window.location.href = '/';
-        }
-      })
-      //$('#signOut').css('display', 'inline-block');
-     // $('#auth-status').html('You are currently signed in and have granted ' +
-        //  'access to this app.');
-     //	 checkForFolder();
-    } else {
-     // $('#gSignInWrapper').css('display', 'block');
-     // $('#signOut').css('display', 'none');
-
-      //$('#auth-status').html('You have not authorized this app or you are ' +
-        //  'signed out.');
-    }
+      var emailAdd = GoogleAuth.currentUser.get().getBasicProfile().getEmail();
+      var emailType = emailAdd.split("@");
+      if(emailType[1] == "uoit.net") {
+        sessionStorage.setItem("email", GoogleAuth.currentUser.get().getBasicProfile().getEmail());
+        var id_token = user.getAuthResponse().id_token;
+        sessionStorage.setItem("token", id_token);
+        /*$.ajax({
+          type: 'GET',
+          url: '/main',
+          data: {param1: id_token},
+          success: function(output) {
+          }
+        });*/
+       window.location.href = '/main?param1='+id_token;
+      } else {
+        alert("Sorry only UOIT email address can access this website");
+        revokeAccess();
+      }
+    } 
   }
 
   function updateSigninStatus(isSignedIn) {
     setSigninStatus();
   }
 
-  function saveFile(fileName) {
-      var tempFileName;
-      if(fileName == "") {
-        tempFileName='test.c';
-      } else {
-        tempFileName = fileName;
-      }
-      const boundary = '-------314159265358979323846';
-      const delimiter = "\r\n--" + boundary + "\r\n";
-      const close_delim = "\r\n--" + boundary + "--";
-      console.log(ENGRFolderId);
-      var fileMetadata = {
-      'title' : tempFileName,
-      'mimeType' : 'text/plain',
-      'parents': [{"id": ENGRFolderId}]
-      };
-
-      var base64Data = btoa(getEditorText());
-      var multipartRequestBody =
-        delimiter +
-        'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(fileMetadata) +
-        delimiter +
-        'Content-Type: ' + "text/plain" + '\r\n' +
-        'Content-Transfer-Encoding: base64\r\n' +
-        '\r\n' +
-        base64Data +
-        close_delim;
-
-        var request = gapi.client.request({
-            'path': '/upload/drive/v2/files',
-            'method': 'POST',
-            'params' : {'uploadType': 'multipart'},
-            'headers': {
-              'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
-            },
-            'body': multipartRequestBody
-        });
-        request.execute();
-
-  }
-
-  function readFiles(id) {
-    var titleValue;
-    console.log("reading files");
-    var request = gapi.client.request({
-        'path': '/drive/v2/files',
-        'method': 'GET',
-        'params': {q:  "'"+id+"' in parents"}
-    });
-      request.execute(function(resp) {
-        console.log(resp);
-        for(var i = 0; i < resp.items.length; i++) {
-          console.log(resp.items[i].title);
-          if(i == 0) {
-            titleValue = resp.items[i].title;
-            $.ajax({
-              type: 'GET',
-              url: '/getFile',
-              data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.items[i].downloadUrl},
-              success: function(output) {
-                
-                var htmlCode = '<div id="'+titleValue+'" onclick="switchProgram(\''+titleValue+'\')" class="program tableCol"><p class="tableCol">'+titleValue+'</p><i onclick="closeProgram(\''+titleValue+'\')" class="fa fa-times tabelCol"></i></div>';
-                 $('#programsList').append(htmlCode);
-                 switchProgram(titleValue);
-                 setEditorText(output);
-              }
-            });
-          }
-        }
-      })
-  }
-
-
-  function folderCreate() {
-    console.log("creating folder");
-
-    var request = gapi.client.request({
-        'path' : '/drive/v2/files',
-        'method' : 'POST',
-        'body' : {'title' : 'ENGR 1200', 'mimeType' : 'application/vnd.google-apps.folder'}
-        
-    });
-      request.execute(function(resp) {
-        ENGRFolderId = resp.id;
-      });
-  }
-
-
-  function checkForFolder() {
-    var fileExist = false;
-    var request = gapi.client.request({
-            'path': '/drive/v3/files',
-            'method': 'GET',
-            'params': {q: "name = 'ENGR 1200'"}
-            });
-          request.execute(function(resp) { 
-            if(resp.files.length > 0) {
-              for(var i =0; i < resp.files.length; i++) {
-                  if(resp.files[i].mimeType == "application/vnd.google-apps.folder") {
-                    fileExist = true;
-                    ENGRFolderId = resp.files[0].id;
-                    break;
-                  }
-              }
-            }
-            if(!fileExist) {
-              alert("Creating the folder ENGR 1200 in your Google Drive");
-              folderCreate();
-            } else {
-              console.log("That folder already exists");
-              readFiles(ENGRFolderId);
-            }
-    });
-  }
+  
