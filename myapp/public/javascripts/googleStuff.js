@@ -391,6 +391,7 @@ function autoSaveFeature() {
   }
 
   function loadFile(id, title) {
+    console.log(title);
     var request = gapi.client.request({
         'path': '/drive/v2/files/'+id,
         'method': 'GET'

@@ -4,8 +4,11 @@ var existingFolders = [];
 var editor;
 var currentProgram;
 var listOfPrograms = {};
+var isFullscreen = false;
 
 $(document).ready(function() {
+
+	setFullScreenVariable();
 	//################ PROGRAM SAMPLE ##########################
 	getProgram("HelloStuart.cpp");
 	deleteProgram("HelloStuart.cpp");
@@ -13,6 +16,8 @@ $(document).ready(function() {
 	saveProgram("HelloStuart2.cpp", "this is where the code goes");
 	getProgram("HelloStuart2.cpp");
 	//##########################################################
+$('#dialog').hide();
+$('#dialogClose').hide();
 
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
@@ -191,4 +196,48 @@ function selectProgram(id) {
 	//console.log('select program');
 	$('#' + id).addClass("selectedProgram");
 	quickLoadFile(id);
+}
+
+
+function fullScreen() {
+	if (isFullscreen)
+		removeFullScreen();
+	else {
+		makeFullScreen();
+	}
+}
+
+function makeFullScreen() {
+	isFullscreen = true;
+	localStorage.setItem("fullScreen", "true");
+	$('.header').hide();
+	$('.footer').hide();
+	$('#menu').prependTo('#utilityBar');
+	$('#content').css("height", "calc(100vh - 50px)");
+	$('#menuIconOpen').css("height", "50px");
+	$('#menuIconOpen').css("padding-top", "15px");
+}
+
+function removeFullScreen() {
+	isFullscreen = false;
+		$('.header').show();
+		$('.footer').show();
+		$('#menu').prependTo('.header');
+		$('#content').css("height", "calc(100vh - 190px)");
+		$('#menuIconOpen').css("padding-top", "39px");
+		$('#menuIconOpen').css("height", "100px");
+		localStorage.setItem("fullScreen", "false");
+}
+
+function setFullScreenVariable() {
+	isFullscreen = localStorage.getItem("fullScreen");
+	console.log("hello");
+	console.log(isFullscreen);
+	if (isFullscreen == null)
+		isFullScreen = false;
+	else if (isFullscreen == "true")
+		makeFullScreen();
+	else
+		removeFullScreen();
+	localStorage.setItem("fullScreen", "true");
 }
