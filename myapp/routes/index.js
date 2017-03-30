@@ -20,16 +20,27 @@ var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	console.log("Should be rendering MAN");
-	console.log("The value is: "+ req.url);
-	var link = req.url.substring(0, req.url.indexOf("?"));
   	res.render('index', { title: 'ENGR 1200' });
-  	//res.render('index', {title: 'ENGR 1200'});
 });
 
 router.get('/application', function(req,res,next) {
 	console.log("SUP");
 })
+
+router.get('/userType', function(req,res,next) {
+	console.log("I am in the user type route ");
+	Users.getUser(req.query.email, function(value) {
+		if(value == null) {
+			var firstName = req.query.email.substring(0, req.query.email.indexOf("."));
+			var lastName = req.query.email.substring(req.query.email.indexOf(".")+1, req.query.email.indexOf("@"));
+			Users.addUser(req.query.email,firstName, lastName, "Student", function() {
+				res.send("Student");
+			})
+		} else {
+			res.send(value.role);
+		}
+	});
+});
 
 router.get('/code', function(req,res,next) {
 	var array = req.query.inputList;

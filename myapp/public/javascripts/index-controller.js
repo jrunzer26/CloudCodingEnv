@@ -6,13 +6,20 @@ var currentProgram;
 var listOfPrograms = {};
 
 $(document).ready(function() {
-	//################ PROGRAM SAMPLE ##########################
-	getProgram("HelloStuart.cpp");
-	deleteProgram("HelloStuart.cpp");
-	getProgramList();
-	saveProgram("HelloStuart2.cpp", "this is where the code goes");
-	getProgram("HelloStuart2.cpp");
-	//##########################################################
+
+	$.ajax({
+		type: 'GET',
+		url: '/main/userType',
+		data: {email: sessionStorage.getItem("email")},
+		success: function(output) {
+			console.log(output);
+			sessionStorage.setItem("access", output);
+			if(output == "Student") {
+				document.getElementById('admin').style.display = 'none';
+			}
+
+		}
+	})
 
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {

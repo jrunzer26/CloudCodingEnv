@@ -2,6 +2,11 @@ var GLOBAL_QUIZ;
 var GLOBAL_QUIZ_ID;
 
 $(document).ready(function() {
+  if(sessionStorage.getItem("access") == "Student") {
+        document.getElementById('admin').style.display = 'none';
+    } else {
+        document.getElementById('admin').style.display = 'block';
+    }
   if (window.location.href.includes("?quizid")) {
     var quizID = window.location.href.substring(window.location.href.indexOf('=') + 1);
     GLOBAL_QUIZ_ID = quizID;
