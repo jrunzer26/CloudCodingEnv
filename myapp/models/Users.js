@@ -10,6 +10,7 @@ exports.getUser = function(email, callback) {
     if (data.length > 0)
       return callback(data[0]);
     else
+      return callback(null);
       return null;
   })
   .catch(function(err) {

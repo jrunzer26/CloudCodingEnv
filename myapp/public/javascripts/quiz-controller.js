@@ -2,6 +2,11 @@ var GLOBAL_QUIZ;
 var GLOBAL_QUIZ_ID;
 
 $(document).ready(function() {
+  if(sessionStorage.getItem("access") == "Student") {
+        document.getElementById('admin').style.display = 'none';
+    } else {
+        document.getElementById('admin').style.display = 'block';
+    }
   if (window.location.href.includes("?quizid")) {
     var quizID = window.location.href.substring(window.location.href.indexOf('=') + 1);
     GLOBAL_QUIZ_ID = quizID;
@@ -9,6 +14,7 @@ $(document).ready(function() {
   } else if (window.location.href.includes("quiz-manager")) {
     getQuizPostings2(true);
   } else {
+    history.pushState({}, '/quiz?param1='+sessionStorage.getItem("token"), '/quiz');
     getQuizPostings();
   }
 });

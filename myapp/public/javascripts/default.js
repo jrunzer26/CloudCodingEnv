@@ -28,3 +28,23 @@ function tester() {
 		document.getElementById("programs").style.display = "none";
 	}	
 }
+
+function homePage() {
+	window.location.href = '/main?param1='+sessionStorage.getItem("token");
+}
+
+function quizPage() {
+	window.location.href = '/quiz?param1='+sessionStorage.getItem("token");
+}
+
+function adminPage() {
+	window.location.href = '/admin?param1='+sessionStorage.getItem("token");
+}
+
+function showInstrPrograms() {
+	if(document.getElementById("instrPrograms").style.display == "none") {
+		document.getElementById("instrPrograms").style.display = "inline";
+	} else {
+		document.getElementById("instrPrograms").style.display = "none";
+	}
+}

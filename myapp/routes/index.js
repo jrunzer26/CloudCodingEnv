@@ -6,6 +6,8 @@ var exec = require('child_process').exec;
 var readline = require('readline');
 var google = require('googleapis');
 var GoogleAuth = require('google-auth-library');
+var auth = new GoogleAuth;
+var client = new auth.OAuth2("814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com", '', '');
 var rp = require('request-promise');
 
 var auth = new GoogleAuth;
@@ -18,7 +20,26 @@ var Users = require('../models/Users.js');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'ENGR 1200' });
+  	res.render('index', { title: 'ENGR 1200' });
+});
+
+router.get('/application', function(req,res,next) {
+	console.log("SUP");
+})
+
+router.get('/userType', function(req,res,next) {
+	console.log("I am in the user type route ");
+	Users.getUser(req.query.email, function(value) {
+		if(value == null) {
+			var firstName = req.query.email.substring(0, req.query.email.indexOf("."));
+			var lastName = req.query.email.substring(req.query.email.indexOf(".")+1, req.query.email.indexOf("@"));
+			Users.addUser(req.query.email,firstName, lastName, "Student", function() {
+				res.send("Student");
+			})
+		} else {
+			res.send(value.role);
+		}
+	});
 });
 
 router.get('/code', function(req,res,next) {

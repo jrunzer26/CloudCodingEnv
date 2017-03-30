@@ -12,6 +12,7 @@ var editor;
   function handleClientLoad() {
     // Load the API's client and auth2 modules.
     // Call the initClient function after the modules load.
+    history.pushState({}, '/main?param1='+sessionStorage.getItem("token"), '/main');
     gapi.load('client:auth2', initClient);
   }
 
@@ -58,9 +59,11 @@ var editor;
       GoogleAuth.signOut();
        $.ajax({
         type: 'GET',
-        url: '/login/',
+        url: '/',
         success: function(output) {
-          window.location.href='/login';
+          sessionStorage.setItem("token", "");
+          sessionStorage.setItem("email", "");
+          window.location.href='/';
         }
       })
     } else {
@@ -338,7 +341,7 @@ function autoSaveFeature() {
           });
           request.execute(function(resp) {
             console.log(resp);
-            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile('+resp.id+' , '+resp.title+') style="padding-left: 50px">'+resp.title+'</a>';
+            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile(\''+resp.id+'\' , \''+resp.title+'\') style="padding-left: 50px">'+resp.title+'</a>';
             $('#programs').append(listhtmlCode);
             if(!value) {
         		var elem = document.getElementById(fileName);
@@ -368,7 +371,7 @@ function autoSaveFeature() {
             titleValue = resp.items[i].title;
             $.ajax({
               type: 'GET',
-              url: '/getFile',
+              url: '/main/getFile',
               data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.items[i].downloadUrl},
               success: function(output) {
                 
@@ -431,7 +434,7 @@ function autoSaveFeature() {
 									"Yes": function() {
 										$.ajax({
 					      					type: 'GET',
-				          					url: '/getFile',
+				          					url: '/main/getFile',
 				          					data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: res.items[0].downloadUrl},
 				          					success: function(output) {
 				          						var htmlCode = '<div id="'+resp.title+'" onclick="switchProgram(\''+resp.title+'\')" class="program tableCol"><p id="'+resp.title+'Text" class="tableCol">'+resp.title+'</p><i id="'+resp.title+'Close" onclick="closeProgram(\''+resp.title+'\')" class="fa fa-times tabelCol"></i></div>';
@@ -446,7 +449,7 @@ function autoSaveFeature() {
 									"No": function() {
 										$.ajax({
 								          type: 'GET',
-								          url: '/getFile',
+								          url: '/main/getFile',
 								          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
 								          success: function(output) {
 								            
@@ -468,7 +471,7 @@ function autoSaveFeature() {
 	      		} else {
 	      			    $.ajax({
 				          type: 'GET',
-				          url: '/getFile',
+				          url: '/main/getFile',
 				          data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
 				          success: function(output) {
 				            

@@ -8,14 +8,22 @@ var isFullscreen = false;
 
 $(document).ready(function() {
 
-	setFullScreenVariable();
-	//################ PROGRAM SAMPLE ##########################
-	getProgram("HelloStuart.cpp");
-	deleteProgram("HelloStuart.cpp");
+	$.ajax({
+		type: 'GET',
+		url: '/main/userType',
+		data: {email: sessionStorage.getItem("email")},
+		success: function(output) {
+			console.log(output);
+			sessionStorage.setItem("access", output);
+			if(output == "Student") {
+				document.getElementById('admin').style.display = 'none';
+			}
+
+		}
+	})
 	getProgramList();
-	saveProgram("HelloStuart2.cpp", "this is where the code goes");
-	getProgram("HelloStuart2.cpp");
-	//##########################################################
+	setFullScreenVariable();
+
 $('#dialog').hide();
 $('#dialogClose').hide();
 
@@ -42,7 +50,7 @@ $('#dialogClose').hide();
 		}	
 		$.ajax({
 			type: 'GET',
-			url: '/code',
+			url: '/main/code',
 			data: {codeValue: text, inputList: inputParams, cin: cinParams, fileName: fileName},
 			success: function(output) {
 				$('#outputOfCode').val(output);
@@ -63,7 +71,7 @@ function getEditorText() {
 function testFunction() {
 	$.ajax({
 		type: 'GET',
-		url: '/auth',
+		url: '/main/auth',
 		success: function(output) {
 			console.log(output);
 		}
@@ -93,6 +101,22 @@ function closeDeletedProgram(id) {
 	var elem = document.getElementById(id);
 	elem.remove();
 	openNextProgram();	
+}
+
+function publishCode() {
+	$('#dialogPublish').dialog({
+		modal: true,
+		resizable: false,
+		buttons: {
+			"YES": function() {
+				saveProgram(currentProgram, getEditorText());
+				$(this).dialog("close");
+			},
+			"NO": function() {
+				$(this.dialog("close"));
+			}
+		}
+	})
 }
 
 function askSave(val) {
