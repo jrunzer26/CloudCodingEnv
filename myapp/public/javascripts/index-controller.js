@@ -16,6 +16,7 @@ $(document).ready(function() {
 			sessionStorage.setItem("access", output);
 			if(output == "Student") {
 				document.getElementById('admin').style.display = 'none';
+				$('#publish').hide();
 			}
 
 		}
@@ -25,7 +26,8 @@ $(document).ready(function() {
 
 $('#dialog').hide();
 $('#dialogClose').hide();
-$('#publish').hide();
+$('#dialogPublish').hide();
+
 
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
@@ -212,13 +214,15 @@ function switchProgram(id) {
 }
 
 function unselectProgram(id) {
-	if (id != "")
-		$('#' + id).removeClass("selectedProgram");
+	console.log(id);
+	if (id != "" && id)
+		$('#' + id.replace('.cpp', '\\.cpp')).removeClass("selectedProgram");
+	console.log(id);
 }
 
 function selectProgram(id) {
 	//console.log('select program');
-	$('#' + id).addClass("selectedProgram");
+	$('#' + id.replace('.cpp', '\\.cpp')).addClass("selectedProgram");
 	quickLoadFile(id);
 }
 
@@ -232,6 +236,7 @@ function fullScreen() {
 }
 
 function makeFullScreen() {
+	console.log("fullscreen");
 	isFullscreen = true;
 	localStorage.setItem("fullScreen", "true");
 	$('.header').hide();
@@ -244,13 +249,13 @@ function makeFullScreen() {
 
 function removeFullScreen() {
 	isFullscreen = false;
-		$('.header').show();
-		$('.footer').show();
-		$('#menu').prependTo('.header');
-		$('#content').css("height", "calc(100vh - 190px)");
-		$('#menuIconOpen').css("padding-top", "39px");
-		$('#menuIconOpen').css("height", "100px");
-		localStorage.setItem("fullScreen", "false");
+	$('.header').show();
+	$('.footer').show();
+	$('#menu').prependTo('.header');
+	$('#content').css("height", "calc(100vh - 190px)");
+	$('#menuIconOpen').css("padding-top", "39px");
+	$('#menuIconOpen').css("height", "100px");
+	localStorage.setItem("fullScreen", "false");
 }
 
 function setFullScreenVariable() {

@@ -9,7 +9,7 @@ var client = new auth.OAuth2("814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps
 
 /* GET login page */
 router.get('/', function(req, res, next) {
-  res.render('login', { title: 'Express' });
+  res.render('login', { title: 'ENGR 1200 Login' });
 });
 
 /**
