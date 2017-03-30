@@ -20,7 +20,6 @@ block extraScripts
 block content
   #backgroundContainer
     #utilityBar
-      button#publish.btn.btn-primary(type='button', onclick='publishCode()')
       button#save.btn.btn-primary(type='button', onclick='askSave(true)')
           i.fa.fa-floppy-o(aria-hidden='true')
       button#new.btn.btn-primary(type='button', onclick='newFile()')
@@ -30,6 +29,8 @@ block content
       button.tableCol.btn-sm.btn-primary(type="submit" class="btn" id="rename" onclick="renameFile()") Rename
       button#fullScreen.btn.btn-primary(type='button' onclick='fullScreen()')
           i.fa.fa-arrows-alt(aria-hidden='true')
+      button#publish.btn.btn-primary(type='button', onclick='publishCode()')
+          i.fa.fa-arrow-up(aria-hidden='true')
       #programsList.tableCol
     #content
       #codingSection.half

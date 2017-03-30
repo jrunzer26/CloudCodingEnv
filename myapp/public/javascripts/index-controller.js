@@ -7,7 +7,6 @@ var listOfPrograms = {};
 var isFullscreen = false;
 
 $(document).ready(function() {
-
 	$.ajax({
 		type: 'GET',
 		url: '/main/userType',
@@ -26,6 +25,7 @@ $(document).ready(function() {
 
 $('#dialog').hide();
 $('#dialogClose').hide();
+$('#publish').hide();
 
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {

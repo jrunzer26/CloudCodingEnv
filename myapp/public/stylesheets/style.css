@@ -228,6 +228,7 @@ a {
 
 .g-signin2{
   width: 100%;
+  text-align: center;
 }
 
 .g-signin2 > div{
@@ -246,7 +247,7 @@ a {
   margin-bottom: 30px;
 }
 
-#save, #new, #delete, #rename, #fullScreen {
+#save, #new, #delete, #rename, #fullScreen, #publish {
   margin-left: 10px;
   margin-bottom: 8px;
 }

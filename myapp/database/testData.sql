@@ -2,7 +2,7 @@ INSERT INTO Users ("email", "firstName", "lastName", "role") VALUES (
     'jason.runzer@uoit.net',
     'Jason',
     'Runzer',
-    'Teacher'
+    'Student'
 );
 
 INSERT INTO Quizzes ("name", "expDate", "creator") VALUES (
