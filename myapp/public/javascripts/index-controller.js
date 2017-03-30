@@ -20,6 +20,7 @@ $(document).ready(function() {
 
 		}
 	})
+	getProgramList();
 
 	var code = $(".codemirror-textarea")[0];
 	editor = CodeMirror.fromTextArea(code, {
@@ -95,6 +96,22 @@ function closeDeletedProgram(id) {
 	var elem = document.getElementById(id);
 	elem.remove();
 	openNextProgram();	
+}
+
+function publishCode() {
+	$('#dialogPublish').dialog({
+		modal: true,
+		resizable: false,
+		buttons: {
+			"YES": function() {
+				saveProgram(currentProgram, getEditorText());
+				$(this).dialog("close");
+			},
+			"NO": function() {
+				$(this.dialog("close"));
+			}
+		}
+	})
 }
 
 function askSave(val) {

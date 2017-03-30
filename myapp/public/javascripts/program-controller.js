@@ -8,8 +8,10 @@ function getProgram(programName) {
     data: {programName: programName},
     url: '/programs/getProgram',
     success: function(output) {
-      console.log(output);
-      return output;
+      var htmlCode = '<div id="'+programName+'" onclick="switchProgram(\''+programName+'\')" class="program tableCol"><p id="'+programName+'Text" class="tableCol">'+programName+'</p><i id="'+programName+'Close" onclick="closeProgram(\''+programName+'\')" class="fa fa-times tabelCol"></i></div>';
+      $('#programsList').append(htmlCode);
+      listOfPrograms[programName] = output.data;
+      switchProgram(programName);
     }
   });
 }
@@ -24,9 +26,9 @@ function getProgramList() {
     success: function(output) {
       console.log("program list");
       for(var i = 0; i < output.programs.length; i++) {
-        console.log(output.programs[i].name);
+        var listhtmlCode = '<a href="#" id="instrList'+output.programs[i].name+'" onclick=getProgram(\''+output.programs[i].name+'\') style="padding-left: 50px">'+output.programs[i].name+'</a>';
+        $('#instrPrograms').append(listhtmlCode);
       }
-      return output;
     }
   });
 }
@@ -37,9 +39,13 @@ function getProgramList() {
  * @param {*} programText 
  */
 function saveProgram(programName, programText) {
+  var emailAdd = sessionStorage.getItem('email');
+  if(emailAdd == undefined) {
+    emailAdd = "jason.runzer@uoit.net"
+  }
    $.ajax({
     type: 'POST',
-    data: {email: "jason.runzer@uoit.net", programName: programName, data: programText},
+    data: {email: emailAdd, programName: programName, data: programText},
     url: '/programs/saveProgram',
     success: function(output) {
       console.log(output);
@@ -53,6 +59,10 @@ function saveProgram(programName, programText) {
  * @param {*} programName 
  */
 function deleteProgram(programName) {
+    var emailAdd = sessionStorage.getItem('email');
+    if(emailAdd == undefined) {
+      emailAdd = "jason.runzer@uoit.net"
+    }
    $.ajax({
     type: 'POST',
     data: {email: "jason.runzer@uoit.net", programName: programName},

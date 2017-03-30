@@ -34,7 +34,8 @@ html
         a(href="#" onclick="tester()") Programs
         #programs(style='display: none')
         a(href="#" onclick="quizPage()") Quiz
-        a(href="#") Instructor Programs
+        a(href="#" onclick="showInstrPrograms()") Instructor Programs
+        #instrPrograms(style='display: none')
         // need to add this in when the user is an admin
         a(href="#" id="admin" onclick="adminPage()") Administration
     block content

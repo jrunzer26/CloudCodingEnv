@@ -37,3 +37,11 @@ function quizPage() {
 function adminPage() {
 	window.location.href = '/admin?param1='+sessionStorage.getItem("token");
 }
+
+function showInstrPrograms() {
+	if(document.getElementById("instrPrograms").style.display == "none") {
+		document.getElementById("instrPrograms").style.display = "inline";
+	} else {
+		document.getElementById("instrPrograms").style.display = "none";
+	}
+}
