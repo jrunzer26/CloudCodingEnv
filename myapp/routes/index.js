@@ -45,14 +45,16 @@ router.get('/userType', function(req,res,next) {
 router.get('/code', function(req,res,next) {
 	var array = req.query.inputList;
 	var cin = req.query.cin;
-	var name = randomString.generate(7) + ".c";
+	var tempName = randomString.generate(7);
+	var name = tempName + ".c";
 	var outputText = " ";
 	fs.writeFile(name, req.query.codeValue, function(err) {
 		if(err) {
-			return res.send(err);
+			console.log(err);
+			//return res.send(err);
 		}
 	});
-	var temper = name.substring(0, name.indexOf(".")) + ".out";
+	var temper = tempName + ".out";
 	var compile = spawn('g++', [name, "-o", temper]);
 	compile.stdout.on('data', function(data) {
 	});
