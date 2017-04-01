@@ -49,14 +49,15 @@ router.get('/code', function(req,res,next) {
 	var outputText = " ";
 	fs.writeFile(name, req.query.codeValue, function(err) {
 		if(err) {
-			console.log(err);
+			return res.send(err);
 		}
 	});
-	var temper = name + ".out";
+	var temper = name.substring(0, name.indexOf(".")) + ".out";
 	var compile = spawn('g++', [name, "-o", temper]);
 	compile.stdout.on('data', function(data) {
 	});
 	compile.stderr.on('data', function (data) {
+		exec('rm '+temper);
 		return res.send("While compiling your code an error occurred.\n"+String(data));
 	});
 	compile.on('close', function (data) {
