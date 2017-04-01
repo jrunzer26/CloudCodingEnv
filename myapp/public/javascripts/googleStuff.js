@@ -341,7 +341,7 @@ function autoSaveFeature() {
           });
           request.execute(function(resp) {
             console.log(resp);
-            var listhtmlCode = '<a href="#" id="list'+resp.title+'" onclick=loadFile(\''+resp.id+'\' , \''+resp.title+'\') style="padding-left: 50px">'+resp.title+'</a>';
+            var listhtmlCode = '<a href="#" class="googleDriveProgram" id="list'+resp.title+'" onclick=loadFile(\''+resp.id+'\' , \''+resp.title+'\') style="padding-left: 50px">'+resp.title+'</a>';
             $('#programs').append(listhtmlCode);
             if(!value) {
         		var elem = document.getElementById(fileName);
@@ -365,7 +365,7 @@ function autoSaveFeature() {
         console.log(resp);
         for(var i = 0; i < resp.items.length; i++) {
           existingFiles.push(resp.items[i].title);
-          var listhtmlCode = '<a href="#" id="list'+resp.items[i].title+'" onclick="loadFile(\''+resp.items[i].id+ '\' , \''+resp.items[i].title+'\')" style="padding-left: 50px">'+resp.items[i].title+'</a>'
+          var listhtmlCode = '<a href="#" class="googleDriveProgram" id="list'+resp.items[i].title+'" onclick="loadFile(\''+resp.items[i].id+ '\' , \''+resp.items[i].title+'\')" style="padding-left: 50px">'+resp.items[i].title+'</a>'
           $('#programs').append(listhtmlCode)
           if(i == 0) {
             titleValue = resp.items[i].title;

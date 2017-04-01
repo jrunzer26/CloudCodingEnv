@@ -2,6 +2,9 @@ var GLOBAL_QUIZ;
 var GLOBAL_QUIZ_ID;
 
 $(document).ready(function() {
+  $('#instrA').hide();
+  $('#programsA').hide();
+  $('#quizA').hide();
   if(sessionStorage.getItem("access") == "Student") {
         document.getElementById('admin').style.display = 'none';
     } else {
