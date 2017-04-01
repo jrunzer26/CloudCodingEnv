@@ -52,47 +52,48 @@ router.get('/code', function(req,res,next) {
 		if(err) {
 			console.log(err);
 			//return res.send(err);
-		}
-	});
-	var temper = tempName + ".out";
-	var compile = spawn('g++', [name, "-o", temper]);
-	compile.stdout.on('data', function(data) {
-	});
-	compile.stderr.on('data', function (data) {
-		exec('rm '+temper);
-		return res.send("While compiling your code an error occurred.\n"+String(data));
-	});
-	compile.on('close', function (data) {
-		if(data ===0) {
-			var temp = "./"+ name+ ".out";
-			var run = spawn(temp, array);
-			var timeout = false;
-			setTimeout(function(){
-				run.kill();
-				timeout = true;
-			}, 2000);
-			run.stdin.end(cin);
-			run.stdout.on('data', function (output) {
-				outputText += String(output) + "\n";
+		} else {
+			var temper = tempName + ".out";
+			var compile = spawn('g++', [name, "-o", temper]);
+			compile.stdout.on('data', function(data) {
 			});
-			run.stderr.on('data', function (output) {
+			compile.stderr.on('data', function (data) {
 				exec('rm '+temper);
-				exec('rm '+name);
-				return res.send("While running your code an error occurred.\n"+String(output));
+				return res.send("While compiling your code an error occurred.\n"+String(data));
 			});
-			run.on('close', function(output) {
-				if(!timeout) {
-					exec('rm '+temper);
-					exec('rm '+name);
-					return res.send(outputText);
-				} else {
-					exec('rm '+temper);
-					exec('rm '+name);
-					return res.send("Timeout error: your program took to long to run!");
+			compile.on('close', function (data) {
+				if(data ===0) {
+					var temp = "./"+ tempName+ ".out";
+					var run = spawn(temp, array);
+					var timeout = false;
+					setTimeout(function(){
+						run.kill();
+						timeout = true;
+					}, 2000);
+					run.stdin.end(cin);
+					run.stdout.on('data', function (output) {
+						outputText += String(output) + "\n";
+					});
+					run.stderr.on('data', function (output) {
+						exec('rm '+temper);
+						exec('rm '+name);
+						return res.send("While running your code an error occurred.\n"+String(output));
+					});
+					run.on('close', function(output) {
+						if(!timeout) {
+							exec('rm '+temper);
+							exec('rm '+name);
+							return res.send(outputText);
+						} else {
+							exec('rm '+temper);
+							exec('rm '+name);
+							return res.send("Timeout error: your program took to long to run!");
+						}
+					});
 				}
-			});
+			})
 		}
-	})
+	});
 });
 
 router.get('/getFile', function(req,res,next) {
