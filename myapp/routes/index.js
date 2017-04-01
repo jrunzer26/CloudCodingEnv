@@ -9,7 +9,7 @@ var GoogleAuth = require('google-auth-library');
 var auth = new GoogleAuth;
 var client = new auth.OAuth2("814887631651-vogmn7e4d0bo9klocjucc8cui17fjhka.apps.googleusercontent.com", '', '');
 var rp = require('request-promise');
-
+var randomString = require("randomstring");
 var auth = new GoogleAuth;
 
 var GoogleAuth = require('google-auth-library');
@@ -45,23 +45,23 @@ router.get('/userType', function(req,res,next) {
 router.get('/code', function(req,res,next) {
 	var array = req.query.inputList;
 	var cin = req.query.cin;
-	var name = req.query.fileName;
+	var name = randomString.generate(7) + ".c";
 	var outputText = " ";
 	fs.writeFile(name, req.query.codeValue, function(err) {
 		if(err) {
 			console.log(err);
 		}
 	});
-	var temper = name.slice(0, name.indexOf("_")) + ".out";
+	var temper = name + ".out";
 	var compile = spawn('g++', [name, "-o", temper]);
 	compile.stdout.on('data', function(data) {
 	});
 	compile.stderr.on('data', function (data) {
-		res.send("While compiling your code an error occurred.\n"+String(data));
+		return res.send("While compiling your code an error occurred.\n"+String(data));
 	});
 	compile.on('close', function (data) {
 		if(data ===0) {
-			var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
+			var temp = "./"+ name+ ".out";
 			var run = spawn(temp, array);
 			var timeout = false;
 			setTimeout(function(){
@@ -73,16 +73,20 @@ router.get('/code', function(req,res,next) {
 				outputText += String(output) + "\n";
 			});
 			run.stderr.on('data', function (output) {
-				res.send("While running your code an error occurred.\n"+String(output));
+				exec('rm '+temper);
+				exec('rm '+name);
+				return res.send("While running your code an error occurred.\n"+String(output));
 			});
 			run.on('close', function(output) {
 				if(!timeout) {
-					res.send(outputText);
+					exec('rm '+temper);
+					exec('rm '+name);
+					return res.send(outputText);
 				} else {
-					res.send("Timeout error: your program took to long to run!");
+					exec('rm '+temper);
+					exec('rm '+name);
+					return res.send("Timeout error: your program took to long to run!");
 				}
-				exec('rm '+temper);
-				exec('rm '+name);
 			});
 		}
 	})
