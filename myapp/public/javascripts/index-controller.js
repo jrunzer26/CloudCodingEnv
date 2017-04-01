@@ -42,13 +42,13 @@ $('#dialogPublish').hide();
 		var fileName = "";
 		var inputParams = $('#inputParams').val().split(",");
 		var cinParams = $('#cinParams').val();
-		var textValue = sessionStorage.getItem("email").replace(".","").split("@");
+		var textValue = makeid();
 		if(currentProgram.lastIndexOf(".") > 0) {
 			var compileName = currentProgram.slice(0, currentProgram.lastIndexOf(".")) + ".c";
-			fileName = textValue[0].concat("_", compileName);
+			fileName = textValue.concat("_", compileName);
 		} else {
 			var compileName = currentProgram + ".c";
-			fileName = textValue[0].concat("_", compileName);
+			fileName = textValue.concat("_", compileName);
 		}	
 		$.ajax({
 			type: 'GET',
@@ -61,6 +61,17 @@ $('#dialogPublish').hide();
 	});
 
 });
+
+function makeid()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 10; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
 
 function setEditorText(info){
 	editor.setValue(info);

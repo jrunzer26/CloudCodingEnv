@@ -19,7 +19,7 @@ var programs = require('./routes/programs');
 var app = express();
 
 
-app.get('/main', checkUser);
+//app.get('/main', checkUser);
 app.get('/quiz', checkUserSideRoutes);
 app.get('/quiz-manager', checkUserSideRoutes)
 app.get('/quiz-gen', checkUserSideRoutes);
