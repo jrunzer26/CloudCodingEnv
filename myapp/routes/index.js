@@ -23,10 +23,6 @@ router.get('/', function(req, res, next) {
   	res.render('index', { title: 'ENGR 1200' });
 });
 
-router.get('/application', function(req,res,next) {
-	console.log("SUP");
-})
-
 router.get('/userType', function(req,res,next) {
 	console.log("I am in the user type route ");
 	Users.getUser(req.query.email, function(value) {
@@ -34,10 +30,10 @@ router.get('/userType', function(req,res,next) {
 			var firstName = req.query.email.substring(0, req.query.email.indexOf("."));
 			var lastName = req.query.email.substring(req.query.email.indexOf(".")+1, req.query.email.indexOf("@"));
 			Users.addUser(req.query.email,firstName, lastName, "Student", function() {
-				res.send("Student");
+				return res.send("Student");
 			})
 		} else {
-			res.send(value.role);
+			return res.send(value.role);
 		}
 	});
 });
@@ -49,43 +45,50 @@ router.get('/code', function(req,res,next) {
 	var outputText = " ";
 	fs.writeFile(name, req.query.codeValue, function(err) {
 		if(err) {
-			console.log(err);
-		}
-	});
-	var temper = name.slice(0, name.indexOf("_")) + ".out";
-	var compile = spawn('g++', [name, "-o", temper]);
-	compile.stdout.on('data', function(data) {
-	});
-	compile.stderr.on('data', function (data) {
-		res.send("While compiling your code an error occurred.\n"+String(data));
-	});
-	compile.on('close', function (data) {
-		if(data ===0) {
-			var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
-			var run = spawn(temp, array);
-			var timeout = false;
-			setTimeout(function(){
-				run.kill();
-				timeout = true;
-			}, 2000);
-			run.stdin.end(cin);
-			run.stdout.on('data', function (output) {
-				outputText += String(output) + "\n";
+			return res.send(err);
+		} else {
+			var temper = name.slice(0, name.indexOf("_")) + ".out";
+			var compile = spawn('g++', [name, "-o", temper]);
+			compile.stdout.on('data', function(data) {
 			});
-			run.stderr.on('data', function (output) {
-				res.send("While running your code an error occurred.\n"+String(output));
+			compile.stderr.on('data', function (data) {
+				return res.send("While compiling your code an error occurred.\n"+String(data));
 			});
-			run.on('close', function(output) {
-				if(!timeout) {
-					res.send(outputText);
-				} else {
-					res.send("Timeout error: your program took to long to run!");
+			compile.on('close', function (data) {
+				if(data ===0) {
+					var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
+					var run = spawn(temp, array);
+					var timeout = false;
+					setTimeout(function(){
+						run.kill();
+						timeout = true;
+					}, 2000);
+					run.stdin.end(cin);
+					run.stdout.on('data', function (output) {
+						outputText += String(output) + "\n";
+					});
+					run.stderr.on('data', function (output) {
+						exec('rm '+temper);
+						exec('rm '+name);
+						return res.send("While running your code an error occurred.\n"+String(output));
+					});
+					run.on('close', function(output) {
+						if(!timeout) {
+							exec('rm '+temper);
+							exec('rm '+name);
+							return res.send(outputText);
+						} else {
+							exec('rm '+temper);
+							exec('rm '+name);
+							return res.send("Timeout error: your program took to long to run!");
+						}
+
+					});
 				}
-				exec('rm '+temper);
-				exec('rm '+name);
-			});
+			})
 		}
-	})
+	});
+	
 });
 
 router.get('/getFile', function(req,res,next) {
@@ -99,7 +102,7 @@ router.get('/getFile', function(req,res,next) {
 		}
 	};
 	rp(options).then(function (result) {
-		res.send(result);
+		return res.send(result);
 	})
 })
 
