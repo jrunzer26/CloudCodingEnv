@@ -51,9 +51,7 @@ router.get('/code', function(req,res,next) {
 			var compile = spawn('g++', [name, "-o", temper]);
 			compile.stdout.on('data', function(data) {
 			});
-			compile.stderr.on('data', function (data) {
-				return res.send("While compiling your code an error occurred.\n"+String(data));
-			});
+			
 			compile.on('close', function (data) {
 				if(data ===0) {
 					var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
@@ -83,6 +81,10 @@ router.get('/code', function(req,res,next) {
 							return res.send("Timeout error: your program took to long to run!");
 						}
 
+					});
+				} else {
+					compile.stderr.on('data', function (data) {
+						return res.send("While compiling your code an error occurred.\n"+String(data));
 					});
 				}
 			})
