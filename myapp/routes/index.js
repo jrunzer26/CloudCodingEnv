@@ -43,6 +43,8 @@ router.get('/code', function(req,res,next) {
 	var cin = req.query.cin;
 	var name = req.query.fileName;
 	var outputText = " ";
+	var compileError = false; 
+	var errorMessage = "";
 	fs.writeFile(name, req.query.codeValue, function(err) {
 		if(err) {
 			return res.send(err);
@@ -51,7 +53,12 @@ router.get('/code', function(req,res,next) {
 			var compile = spawn('g++', [name, "-o", temper]);
 			compile.stdout.on('data', function(data) {
 			});
-			
+			compile.stderr.on('data', function (data) {
+				compileError = true;
+				errorMessage = "While compiling your code an error occurred.\n"+String(data);
+				break;
+			});
+
 			compile.on('close', function (data) {
 				if(data ===0) {
 					var temp = "./"+ name.slice(0, name.indexOf("_")) + ".out";
@@ -83,9 +90,11 @@ router.get('/code', function(req,res,next) {
 
 					});
 				} else {
-					compile.stderr.on('data', function (data) {
-						return res.send("While compiling your code an error occurred.\n"+String(data));
-					});
+					while(1) {
+						if(compileError) {
+							return res.send(errorMessage);	
+						}
+					}
 				}
 			})
 		}
