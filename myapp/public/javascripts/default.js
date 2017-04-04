@@ -20,7 +20,9 @@ function closeNav() {
     document.getElementById("backgroundContainer").style.marginLeft = "0";
 }
 
-
+/**
+ * Shows the list of programs when Program linked is clicked.
+ */
 function tester() {
 	if(document.getElementById("programs").style.display == "none") {
 		document.getElementById("programs").style.display = "inline";
@@ -29,18 +31,30 @@ function tester() {
 	}	
 }
 
+/**
+ * Directs the user to the main page.
+ */
 function homePage() {
 	window.location.href = '/main?param1='+sessionStorage.getItem("token");
 }
 
+/**
+ * Directs the user to the quiz page.
+ */
 function quizPage() {
 	window.location.href = '/quiz?param1='+sessionStorage.getItem("token");
 }
 
+/**
+ * Directs the user to the admin page.
+ */
 function adminPage() {
 	window.location.href = '/admin?param1='+sessionStorage.getItem("token");
 }
 
+/**
+ * Shows the list of instructor programs when the Intrsutor programs link is clicked.
+ */
 function showInstrPrograms() {
 	if(document.getElementById("instrPrograms").style.display == "none") {
 		document.getElementById("instrPrograms").style.display = "inline";

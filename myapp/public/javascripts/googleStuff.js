@@ -52,7 +52,9 @@ var editor;
   }
 
 
-
+  /**
+   * Checks if the user is signed in or not and performs actions accordinly.
+   */
   function handleAuthClick() {
     if (GoogleAuth.isSignedIn.get()) {
       // User is authorized and has clicked 'Sign out' button.
@@ -72,19 +74,28 @@ var editor;
     }
   }
 
+  /**
+   * Removes the premission the user oiginally gave us.
+   */
   function revokeAccess() {
     GoogleAuth.disconnect();
   }
 
+ /**
+  * Changes the buttons and what they displayed.
+  * @param {*} isSignedIn
+  */
  function setSigninStatus(isSignedIn) {
     var user = GoogleAuth.currentUser.get();
     var isAuthorized = user.hasGrantedScopes(SCOPE);
+    //If the user is logged in two buttons will appear Signout and Revoke Access.
     if (isAuthorized) {
       $('#sign-in-or-out-button').html('Sign out');
       $('#revoke-access-button').css('display', 'inline-block');
       $('#auth-status').html('You are currently signed in and have granted ' +
           'access to this app.');
       checkForFolder();
+      //If the user is not logged in one button will appear Sign In/Authroize.
     } else {
       $('#sign-in-or-out-button').html('Sign In/Authorize');
       $('#revoke-access-button').css('display', 'none');
@@ -93,24 +104,32 @@ var editor;
     }
   }
 
+  //Checks the users signin status and updates accordingly.
   function updateSigninStatus(isSignedIn) {
     setSigninStatus();
   }
 
+/**
+ * Delete the selected file from the google drive.
+ */
 function deleteFile() {
     var value = confirm("Do you want to delete file: "+ currentProgram);
     if(value == true) {
+    //Sends a request to the google drive api to retrieve the id of the file they want to delete.
     var requester = gapi.client.request({
         'path': '/drive/v2/files',
         'method': 'GET',
         'params': {q:  "title = '"+currentProgram+"'"}
     });
+    //Sends another request to the google drive api to delete the file corresponding to the id.
     requester.execute(function(res) {
       var request = gapi.client.request({
         'path': '/drive/v2/files/'+res.items[0].id,
         'method': 'DELETE'
       });
       request.execute();
+
+      //Removes any information about this file from the website.
       var elem = document.getElementById("list"+currentProgram);
       elem.remove();
       closeDeletedProgram(currentProgram);
@@ -119,6 +138,10 @@ function deleteFile() {
   }
 } 
 
+/**
+ * Delete the selected file based off the id from the auto save folder.
+ * @param {*} id 
+ */
 function deleteAutoSaveFile(id) {
   var request = gapi.client.request({
     'path': '/drive/v2/files/'+id,
@@ -127,14 +150,19 @@ function deleteAutoSaveFile(id) {
   request.execute();
 }
 
+/**
+ * Rename the select file and updates the name where ever it is used.
+ */ 
 function renameFile() {
   var fileName = window.prompt("Enter file name: ", "testFile");
   if(fileName !== null) {
+    //Sends an API request obtain the selected file id.
     var requester = gapi.client.request({
         'path': '/drive/v2/files',
         'method': 'GET',
         'params': {q:  "title = '"+currentProgram+"'"}
     });
+    //Sends an API request that updates the file name.
     requester.execute(function(res){
         var id = res.items[0].id;
         var request = gapi.client.request({
@@ -142,6 +170,8 @@ function renameFile() {
             'method': 'PATCH',
             'body': {"title": fileName}
         });
+
+        //Changes all the elements that have reference to the filename, and changes them to what the user inputted.
         document.getElementById(currentProgram).setAttribute( "onclick", "switchProgram('"+fileName+"');" );
         document.getElementById(currentProgram+"Close").setAttribute( "onclick", "closeProgram('"+fileName+"');" );
         document.getElementById(currentProgram+"Text").innerHTML = fileName;
@@ -157,10 +187,12 @@ function renameFile() {
   }
 }
 
-//setInterval(function () {autoSaveFeature();}, 120000);
-//setInterval(function() {console.log("HEY MAN");}, 1000);
+//After 2 minutes call the enableAuto.
 setTimeout(enableAuto, 120000);
 
+/**
+ * Calls the autosave function once.
+ */
 function enableAuto() {
   if(!autoSaveGo) {
       autoSaveGo = true;
@@ -169,30 +201,33 @@ function enableAuto() {
   }
 }
 
+/**
+ * Every two minutes all the files that are currently open will be saved to the auto save folder.
+ */
 function autoSaveFeature() {
+
+  //Variables used for the multibody request.
 	const boundary = '-------314159265358979323846';
 	const delimiter = "\r\n--" + boundary + "\r\n";
 	const close_delim = "\r\n--" + boundary + "--";
-	console.log("In the autoSave File");
   for(var i = 0; i < Object.keys(listOfPrograms).length; i++) {
+      //Checks to see if the file already exists in the auto save folder
       if(Object.keys(autoSaveFiles).includes(Object.keys(listOfPrograms)[i])) {
         var base64;
+        //Stores the correct contents that relates to the file being saved.
         if(Object.keys(listOfPrograms)[i] == currentProgram) {
             base64 = btoa(editor.getValue());;
         } else {
             base64 = btoa(Object.values(listOfPrograms)[i]);
         }
-        var title = Object.keys(listOfPrograms)[i];
-        var titleID = autoSaveFiles[Object.keys(listOfPrograms)[i]];
-        console.log("the file name is: "+ Object.keys(listOfPrograms)[i]+ " the id is: "+autoSaveFiles[Object.keys(listOfPrograms)[i]]);
-        console.log("the folder id is: "+ autoSaveFolderId);
+         var title = Object.keys(listOfPrograms)[i];
+         var titleID = autoSaveFiles[Object.keys(listOfPrograms)[i]];
          var fileMetadata = {
           'title' : title,
           'mimeType' : 'text/plain',
           'parents': [{"id": autoSaveFolderId}]
           };
 
-          console.log(base64);
           var multipartRequestBody =
             delimiter +
             'Content-Type: application/json\r\n\r\n' +
@@ -204,6 +239,7 @@ function autoSaveFeature() {
             base64 +
             close_delim;
 
+            //Sends an API request to update the file to the autosave folder.
             var request = gapi.client.request({
                 'path': '/upload/drive/v2/files/'+titleID,
                 'method': 'PUT',
@@ -238,7 +274,7 @@ function autoSaveFeature() {
           '\r\n' +
           base64 +
           close_delim;
-
+          //Sends an API request to save the file to the autosave folder.
           var request = gapi.client.request({
               'path': '/upload/drive/v2/files',
               'method': 'POST',
@@ -256,9 +292,16 @@ function autoSaveFeature() {
       }
   }
   console.log("setting timeout");
+  //Calls itself in 2 minutues.
   setTimeout(autoSaveFeature, 120000);
 }
 
+
+  /**
+   * Saves the file to the ENGR 1200 folder.
+   * @param {*} fileName
+   * @param {*} value 
+   */
   function saveFile(fileName, value) {
   	const boundary = '-------314159265358979323846';
 	const delimiter = "\r\n--" + boundary + "\r\n";
@@ -272,6 +315,7 @@ function autoSaveFeature() {
     	console.log(res.items);
       if(res.items.length > 0 ){
         var val = true;
+        //Checks to see if the file already exists in the folder
         if(val) {
 
           console.log(ENGRFolderId);
@@ -293,6 +337,7 @@ function autoSaveFeature() {
             base64Data +
             close_delim;
 
+            //Updates the current file.
             var request = gapi.client.request({
                 'path': '/upload/drive/v2/files/'+res.items[0].id,
                 'method': 'PUT',
@@ -330,6 +375,7 @@ function autoSaveFeature() {
           base64Data +
           close_delim;
 
+          //Saves the file to ENGR 1200.
           var request = gapi.client.request({
               'path': '/upload/drive/v2/files',
               'method': 'POST',
@@ -340,31 +386,37 @@ function autoSaveFeature() {
               'body': multipartRequestBody
           });
           request.execute(function(resp) {
-            console.log(resp);
-            var listhtmlCode = '<a href="#" class="googleDriveProgram" id="list'+resp.title+'" onclick=loadFile(\''+resp.id+'\' , \''+resp.title+'\') style="padding-left: 50px">'+resp.title+'</a>';
+            //Adds some html that will display the file name in the program list.
+            var listhtmlCode = '<a href="#" class="googleDriveProgram" id="list'+resp.title+'" onclick="loadFile(\''+resp.id+'\' , \''+resp.title+'\')" style="padding-left: 50px">'+resp.title+'</a>';
             $('#programs').append(listhtmlCode);
             if(!value) {
-        		var elem = document.getElementById(fileName);
-				elem.remove();
-        		openNextProgram();
+          		var elem = document.getElementById(fileName);
+  				    elem.remove();
+          		openNextProgram();
             }
           });
       }
     });
   }
 
+  /**
+   * Grabs a list of all the files stored in the ENGR 1200 folder.
+   * @param {*} id
+   * @param {*} subFolder
+   */
   function readFiles(id , subFolder) {
     var titleValue;
-    console.log("reading files");
+    //Looks at all the files in the ENGR 1200 folder, and ingores any trash documents.
     var request = gapi.client.request({
         'path': '/drive/v2/files',
         'method': 'GET',
         'params': {q:  "'"+id+"' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false"}
     });
       request.execute(function(resp) {
-        console.log(resp);
+        //Loops for as many files as there are in the folder.
         for(var i = 0; i < resp.items.length; i++) {
           existingFiles.push(resp.items[i].title);
+          //Creates some html code that allows you to see the file in the program list.
           var listhtmlCode = '<a href="#" class="googleDriveProgram" id="list'+resp.items[i].title+'" onclick="loadFile(\''+resp.items[i].id+ '\' , \''+resp.items[i].title+'\')" style="padding-left: 50px">'+resp.items[i].title+'</a>'
           $('#programs').append(listhtmlCode)
           if(i == 0) {
@@ -374,9 +426,10 @@ function autoSaveFeature() {
               url: '/main/getFile',
               data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.items[i].downloadUrl},
               success: function(output) {
-                
+                //Creates some html code that displays the file as a tab.
                 var htmlCode = '<div id="'+titleValue+'" onclick="switchProgram(\''+titleValue+'\')" class="program tableCol"><p id="'+titleValue+'Text" class="tableCol">'+titleValue+'</p><i id="'+titleValue+'Close" onclick="closeProgram(\''+titleValue+'\')" class="fa fa-times tabelCol"></i></div>';
                  $('#programsList').append(htmlCode);
+                 //Stores the file and the code value in the list.
                  listOfPrograms[titleValue] = "";
                  switchProgram(titleValue);
                  setEditorText(output);
@@ -384,12 +437,18 @@ function autoSaveFeature() {
             });
           }
         }
+        //Reads all the files from the auto save folder.
         readFileNames(subFolder);
       })
   }
 
+  /**
+   * Grabs a list of all the files stored in the Auto Save folder.
+   * @param {*} id 
+   */ 
   function readFileNames(id) {
     console.log(existingFiles);
+    //Looks at all the files in the auto save folder, ingnoring all the trashed files.
     var request = gapi.client.request({
       'path': '/drive/v2/files',
       'method': 'GET',
@@ -399,16 +458,22 @@ function autoSaveFeature() {
       for(var i = 0; i < resp.items.length; i++) {
         if(existingFiles.indexOf(resp.items[i].title) >= 0) {
           autoSaveFiles[resp.items[i].title] = resp.items[i].id;
-          console.log("The file name is: "+ resp.items[i].title + " the id to go along with it is: "+ resp.items[i].id);
         } else {
+          //If the file is in the autosave folder but not the ENGR 1200 folder delete the file in the auto save folder.
           deleteAutoSaveFile(resp.items[i].id);
         }
       }
     })
   }
 
+
+  /**
+   * Loads the file contents and displays them in the coding enviornment.
+   * @param {*} id 
+   * @param {*} title
+   */ 
   function loadFile(id, title) {
-    console.log(title);
+    //Loads both files from the autosave folder, and the ENGR 1200 folder.
     var request = gapi.client.request({
         'path': '/drive/v2/files/'+id,
         'method': 'GET'
@@ -419,11 +484,11 @@ function autoSaveFeature() {
       		'method': 'GET',
       		'params': {q: "'"+autoSaveFolderId+"' in parents and title = '"+title+"' and trashed = false"}
       	});
+        //Checks to see if file exists in both folders.
       	if(Object.keys(listOfPrograms).indexOf(resp.title) < 0) {
-          console.log("We got a title boys");
       	requester.execute(function(res) {
-          console.log(res.items.length);
       		if(res.items.length > 0) {
+            //Checks to see which file as been saved most recently.
       			if(res.items[0].modifiedDate > resp.modifiedDate) {
 	      			console.log("The autoSave file is newer then the saved file");
 	      				$(function() {
@@ -432,6 +497,7 @@ function autoSaveFeature() {
 								resizable: false,
 								buttons: {
 									"Yes": function() {
+                    //Loads the autosave file.
 										$.ajax({
 					      					type: 'GET',
 				          					url: '/main/getFile',
@@ -446,6 +512,7 @@ function autoSaveFeature() {
 					      				});
 					      				$(this).dialog("close");
 									},
+                  //Loads the ENGR 1200 file.
 									"No": function() {
 										$.ajax({
 								          type: 'GET',
@@ -468,6 +535,7 @@ function autoSaveFeature() {
 								}
 							});
 						});
+            //If the ENGR 1200 file is newer.
 	      		} else {
 	      			    $.ajax({
 				          type: 'GET',
@@ -483,10 +551,11 @@ function autoSaveFeature() {
 				          }
 				        });
 	      		}
+            //If the file only exists in the ENGR 1200 folder.
       		} else {
             $.ajax({
                 type: 'GET',
-                url: '/getFile',
+                url: 'main/getFile',
                 data: {token: GoogleAuth.currentUser.get().Zi.access_token, url: resp.downloadUrl},
                 success: function(output) {
                   
@@ -500,15 +569,20 @@ function autoSaveFeature() {
           }
       	})
 	} else {
+        //If the file already has been loaded then, switch to that file.
         switchProgram(resp.title);
       }
     })
   }
 
 
+  /**
+   * Creates a folder name ENGR 1200.
+   */
   function folderCreate() {
     console.log("creating folder");
 
+    //Sends a request to the google drive API to create a folder named ENGR 1200.
     var request = gapi.client.request({
         'path' : '/drive/v2/files',
         'method' : 'POST',
@@ -517,6 +591,7 @@ function autoSaveFeature() {
     });
       request.execute(function(resp) {
         ENGRFolderId = resp.id;
+        //Sends another request to the google drive API to create another folder named Auto Save.
         var requester = gapi.client.request({
           'path': '/drive/v2/files',
           'method': 'POST',
@@ -528,6 +603,9 @@ function autoSaveFeature() {
       });
   }
 
+  /**
+   * In the case that an ENGR 1200 folder is already created, this function allows you to create the autosave folder.
+   */
   function subFolderCreate() {
     var requester = gapi.client.request({
         'path': '/drive/v2/files',
@@ -540,6 +618,11 @@ function autoSaveFeature() {
       })
   }
 
+  /**
+   * Checks the files in your google drive to see if the ENGR 1200 folder exists
+   * If it does, it will read the files in the folder.
+   * If it does not, it will create the folders.
+   */
   function checkForFolder() {
     var fileExist = false;
     var subFolder = false;
@@ -579,6 +662,7 @@ function autoSaveFeature() {
                       }
                   }
                 }
+                //Checks to see if the auto save folder exists.
                 if(!subFolder) {
                   subFolderCreate();
                 } else {

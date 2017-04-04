@@ -50,42 +50,41 @@ $(document).ready(function() {
     });
   }
 
-
+  /**
+   * Checks the state of the sign in status.
+   */
   function handleAuthClick() {
     if (GoogleAuth.isSignedIn.get()) {
-      // User is authorized and has clicked 'Sign out' button.
       GoogleAuth.signOut();
     } else {
-      // User is not signed in. Start Google auth flow.
       GoogleAuth.signIn();
-      console.log("HYE NOW I AM SIGNING IN");
     }
   }
 
+  /**
+   * Disconnects the user from google sign in.
+   */
   function revokeAccess() {
     GoogleAuth.disconnect();
 
   }
 
+  //Checks the sign in status.
   function setSigninStatus(isSignedIn) {
     var user = GoogleAuth.currentUser.get();
     var isAuthorized = user.hasGrantedScopes(SCOPE);
+    //If the user status is signed in.
     if (isAuthorized) {
-      //$('#gSignInWrapper').css('display', 'none');
+
       var emailAdd = GoogleAuth.currentUser.get().getBasicProfile().getEmail();
       var emailType = emailAdd.split("@");
+      //Check to make sure only uoit.net email address are allowed in the system.
       if(emailType[1] == "uoit.net") {
         sessionStorage.setItem("email", GoogleAuth.currentUser.get().getBasicProfile().getEmail());
         var id_token = user.getAuthResponse().id_token;
         sessionStorage.setItem("token", id_token);
-        /*$.ajax({
-          type: 'GET',
-          url: '/main',
-          data: {param1: id_token},
-          success: function(output) {
-          }
-        });*/
-       window.location.href = '/main?param1='+id_token;
+        //Redirect the user to the main menu page.
+        window.location.href = '/main?param1='+id_token;
       } else {
         alert("Sorry only UOIT email address can access this website");
         revokeAccess();
@@ -93,6 +92,9 @@ $(document).ready(function() {
     } 
   }
 
+  /**
+   * Update the status of the user on wheather or not they are signed in.
+   */
   function updateSigninStatus(isSignedIn) {
     setSigninStatus();
   }
