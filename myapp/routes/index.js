@@ -53,10 +53,11 @@ router.get('/code', function(req,res,next) {
 			var compile = spawn('g++', [name, "-o", temper]);
 			compile.stdout.on('data', function(data) {
 			});
+
+
 			compile.stderr.on('data', function (data) {
 				compileError = true;
-				errorMessage = "While compiling your code an error occurred.\n"+String(data);
-				break;
+				errorMessage += String(data);
 			});
 
 			compile.on('close', function (data) {
