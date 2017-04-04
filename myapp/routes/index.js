@@ -93,6 +93,7 @@ router.get('/code', function(req,res,next) {
 				} else {
 					while(1) {
 						if(compileError) {
+							exec('rm '+name);
 							return res.send(errorMessage);	
 						}
 					}
