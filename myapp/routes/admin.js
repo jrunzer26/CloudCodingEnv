@@ -5,6 +5,9 @@ var spawn = require('child_process').spawn;
 var router = express.Router();
 var Users = require('../models/Users.js');
 
+/**
+ * Loads the admin page.
+ */
 router.get('/', function(req, res, next) {
     res.render('admin', { title: 'Administration' });
 });

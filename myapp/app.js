@@ -6,7 +6,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-	var bodyParser = require('body-parser');
+var bodyParser = require('body-parser');
 var userLoggedIn = false;
 var index = require('./routes/index');
 var login = require('./routes/login');
@@ -25,7 +25,13 @@ app.get('/quiz-manager', checkUserSideRoutes)
 app.get('/quiz-gen', checkUserSideRoutes);
 app.get('/admin', checkUserSideRoutes);
 
-
+/**
+ * Checks if the token sent to the server is a valid token. Redirects
+ * to the login page if invalid.
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 function checkUserSideRoutes(req, res,next) {
 	var token = req.param("param1");
 	if(!userLoggedIn) {
@@ -55,7 +61,12 @@ function checkUserSideRoutes(req, res,next) {
 }
 
 
-
+/**
+ * Checks if the user is a student or a teacher. Redirects if neither.
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 function checkUser(req, res,next) {
 	var token = req.param("param1");
 	userLoggedIn = false;

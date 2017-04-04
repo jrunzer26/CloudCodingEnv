@@ -270,18 +270,28 @@ function switchProgram(id) {
 }
 
 
+/**
+ * Unhighlights a program.
+ * @param {*} id 
+ */
 function unselectProgram(id) {
 	if (id != "" && id)
 		$('#' + id.replace('.cpp', '\\.cpp')).removeClass("selectedProgram");
 	console.log(id);
 }
 
+/**
+ * Selects a program when clicked by highlighting and loading the file into the editor.
+ * @param {*} id 
+ */
 function selectProgram(id) {
 	$('#' + id.replace('.cpp', '\\.cpp')).addClass("selectedProgram");
 	quickLoadFile(id);
 }
 
-
+/**
+ * Toggles fullscreen mode.
+ */
 function fullScreen() {
 	if (isFullscreen)
 		removeFullScreen();
@@ -290,6 +300,9 @@ function fullScreen() {
 	}
 }
 
+/**
+ * Changles HTML elements to make the coding env full screen.
+ */
 function makeFullScreen() {
 	console.log("fullscreen");
 	isFullscreen = true;
@@ -302,6 +315,9 @@ function makeFullScreen() {
 	$('#menuIconOpen').css("padding-top", "15px");
 }
 
+/**
+ * Modifys HTML elements to put the env back to normal mode. 
+ */
 function removeFullScreen() {
 	isFullscreen = false;
 	$('.header').show();
@@ -313,6 +329,10 @@ function removeFullScreen() {
 	localStorage.setItem("fullScreen", "false");
 }
 
+/**
+ * Sets the fullscreen variable, if null isFullscreen = false. 
+ * Also restores fullscreen session
+ */
 function setFullScreenVariable() {
 	isFullscreen = localStorage.getItem("fullScreen");
 	console.log("hello");
